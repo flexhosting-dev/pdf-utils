@@ -222,6 +222,22 @@
                 </label>
             </div>
 
+            <div class="result-panel" id="merge-result" style="display: none;">
+                <h3>Merge Complete!</h3>
+                <div class="result-info">
+                    <span class="result-filename" id="merge-result-filename"></span>
+                    <span class="result-meta"><span id="merge-result-pages"></span> &bull; <span id="merge-result-size"></span></span>
+                </div>
+                <button class="btn btn-primary btn-download" id="merge-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download PDF
+                </button>
+            </div>
+
             <div class="file-list" id="merge-file-list"></div>
 
             <div class="action-bar" id="merge-actions" style="display: none;">
@@ -243,22 +259,6 @@
                 </div>
                 <p class="progress-text">Processing...</p>
             </div>
-
-            <div class="result-panel" id="merge-result" style="display: none;">
-                <h3>Merge Complete!</h3>
-                <div class="result-info">
-                    <span class="result-filename" id="merge-result-filename"></span>
-                    <span class="result-meta"><span id="merge-result-pages"></span> &bull; <span id="merge-result-size"></span></span>
-                </div>
-                <button class="btn btn-primary btn-download" id="merge-download-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download PDF
-                </button>
-            </div>
         </section>
 
         <!-- Split Section -->
@@ -278,6 +278,22 @@
                     <input type="file" id="split-file-input" accept=".pdf" hidden>
                     Browse Files
                 </label>
+            </div>
+
+            <div class="result-panel" id="split-result" style="display: none;">
+                <h3>Split Complete!</h3>
+                <div class="result-info">
+                    <span class="result-filename" id="split-result-info"></span>
+                    <span class="result-meta"><span id="split-result-count"></span> &bull; <span id="split-result-size"></span></span>
+                </div>
+                <button class="btn btn-primary btn-download" id="split-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </button>
             </div>
 
             <div class="split-options" id="split-options" style="display: none;">
@@ -335,22 +351,6 @@
                 </div>
                 <p class="progress-text">Processing...</p>
             </div>
-
-            <div class="result-panel" id="split-result" style="display: none;">
-                <h3>Split Complete!</h3>
-                <div class="result-info">
-                    <span class="result-filename" id="split-result-info"></span>
-                    <span class="result-meta"><span id="split-result-count"></span> &bull; <span id="split-result-size"></span></span>
-                </div>
-                <button class="btn btn-primary btn-download" id="split-download-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download
-                </button>
-            </div>
         </section>
 
         <!-- Compress Section -->
@@ -370,6 +370,33 @@
                     <input type="file" id="compress-file-input" accept=".pdf" hidden>
                     Browse Files
                 </label>
+            </div>
+
+            <div class="result-panel" id="compress-result" style="display: none;">
+                <h3>Compression Complete!</h3>
+                <div class="size-comparison">
+                    <div class="size-item">
+                        <span class="size-label">Original</span>
+                        <span class="size-value" id="original-size"></span>
+                    </div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                    <div class="size-item">
+                        <span class="size-label">Compressed</span>
+                        <span class="size-value" id="compressed-size"></span>
+                    </div>
+                </div>
+                <p class="savings" id="savings"></p>
+                <button class="btn btn-primary btn-download" id="compress-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Compressed PDF
+                </button>
             </div>
 
             <div class="compress-options" id="compress-options" style="display: none;">
@@ -433,33 +460,6 @@
                 </div>
                 <p class="progress-text">Processing...</p>
             </div>
-
-            <div class="result-panel" id="compress-result" style="display: none;">
-                <h3>Compression Complete!</h3>
-                <div class="size-comparison">
-                    <div class="size-item">
-                        <span class="size-label">Original</span>
-                        <span class="size-value" id="original-size"></span>
-                    </div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14"></path>
-                        <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                    <div class="size-item">
-                        <span class="size-label">Compressed</span>
-                        <span class="size-value" id="compressed-size"></span>
-                    </div>
-                </div>
-                <p class="savings" id="savings"></p>
-                <button class="btn btn-primary btn-download" id="compress-download-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download Compressed PDF
-                </button>
-            </div>
         </section>
 
         <!-- Reorganize Section -->
@@ -479,6 +479,22 @@
                     <input type="file" id="reorganize-file-input" accept=".pdf" hidden>
                     Browse Files
                 </label>
+            </div>
+
+            <div class="result-panel" id="reorganize-result" style="display: none;">
+                <h3>Reorganization Complete!</h3>
+                <div class="result-info">
+                    <span class="result-filename" id="reorganize-result-filename"></span>
+                    <span class="result-meta"><span id="reorganize-result-pages"></span> pages &bull; <span id="reorganize-result-size"></span></span>
+                </div>
+                <button class="btn btn-primary btn-download" id="reorganize-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download PDF
+                </button>
             </div>
 
             <div class="reorganize-workspace" id="reorganize-workspace" style="display: none;">
@@ -519,22 +535,6 @@
                     <div class="progress-fill"></div>
                 </div>
                 <p class="progress-text">Processing...</p>
-            </div>
-
-            <div class="result-panel" id="reorganize-result" style="display: none;">
-                <h3>Reorganization Complete!</h3>
-                <div class="result-info">
-                    <span class="result-filename" id="reorganize-result-filename"></span>
-                    <span class="result-meta"><span id="reorganize-result-pages"></span> pages &bull; <span id="reorganize-result-size"></span></span>
-                </div>
-                <button class="btn btn-primary btn-download" id="reorganize-download-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download PDF
-                </button>
             </div>
         </section>
 
