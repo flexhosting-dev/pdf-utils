@@ -862,6 +862,18 @@ body {
     height: 14px;
 }
 
+.image-item.dragging {
+    opacity: 0.5;
+    transform: scale(1.05);
+    cursor: grabbing;
+    z-index: 10;
+    box-shadow: var(--shadow-lg);
+}
+
+.image-item:not(.dragging) {
+    transition: transform 0.15s ease;
+}
+
 /* Format Selector */
 .format-selector {
     margin-bottom: 1.5rem;

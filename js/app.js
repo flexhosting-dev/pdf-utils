@@ -263,7 +263,7 @@ function setupDropZone(dropZoneId, fileInputId, onFilesAdded, options = {}) {
     });
 }
 
-// Sortable List Setup
+// Sortable List Setup (supports both list and grid layouts)
 function setupSortableList(containerId, onReorder) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -275,6 +275,8 @@ function setupSortableList(containerId, onReorder) {
             draggedItem = e.target;
             e.target.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
+            // Set drag image
+            e.dataTransfer.setDragImage(e.target, e.target.offsetWidth / 2, e.target.offsetHeight / 2);
         }
     });
 
@@ -289,13 +291,18 @@ function setupSortableList(containerId, onReorder) {
 
     container.addEventListener('dragover', (e) => {
         e.preventDefault();
-        const afterElement = getDragAfterElement(container, e.clientY);
-        if (draggedItem) {
-            if (afterElement) {
-                container.insertBefore(draggedItem, afterElement);
-            } else {
-                container.appendChild(draggedItem);
-            }
+        if (!draggedItem) return;
+
+        // Check if this is a grid layout (image-list) or vertical list (file-list)
+        const isGrid = container.classList.contains('image-list');
+        const afterElement = isGrid
+            ? getDragAfterElementGrid(container, e.clientX, e.clientY)
+            : getDragAfterElement(container, e.clientY);
+
+        if (afterElement) {
+            container.insertBefore(draggedItem, afterElement);
+        } else {
+            container.appendChild(draggedItem);
         }
     });
 }
@@ -306,6 +313,42 @@ function getDragAfterElement(container, y) {
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset, element: child };
+        }
+        return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// Get element after cursor in grid layout (handles both X and Y)
+function getDragAfterElementGrid(container, x, y) {
+    const draggableElements = [...container.querySelectorAll('.image-item:not(.dragging)')];
+
+    if (draggableElements.length === 0) return null;
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const centerX = box.left + box.width / 2;
+        const centerY = box.top + box.height / 2;
+
+        // Calculate distance from cursor to element center
+        const distX = x - centerX;
+        const distY = y - centerY;
+
+        // If cursor is before this element (to the left or above)
+        // We use a weighted approach - horizontal position within same row matters more
+        const rowThreshold = box.height * 0.6;
+        const isInSameRow = Math.abs(distY) < rowThreshold;
+
+        let offset;
+        if (isInSameRow) {
+            // Same row - use horizontal position
+            offset = distX;
+        } else {
+            // Different row - use vertical position with large horizontal bias
+            offset = distY * 1000 + distX;
+        }
+
         if (offset < 0 && offset > closest.offset) {
             return { offset, element: child };
         }
