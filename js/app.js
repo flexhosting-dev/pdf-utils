@@ -583,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof ConvertModule !== 'undefined') ConvertModule.init();
     if (typeof ReorganizeModule !== 'undefined') ReorganizeModule.init();
     if (typeof ScanModule !== 'undefined') ScanModule.init();
+    if (typeof SignModule !== 'undefined') SignModule.init();
 
     console.log('PDF Utils initialized');
 });
