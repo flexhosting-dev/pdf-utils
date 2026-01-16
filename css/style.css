@@ -698,6 +698,36 @@ body {
 .savings {
     color: #166534;
     font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Result Info */
+.result-info {
+    margin-bottom: 1rem;
+}
+
+.result-filename {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.result-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Download Button */
+.btn-download {
+    margin-top: 0.5rem;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+}
+
+.btn-download svg {
+    width: 20px;
+    height: 20px;
 }
 
 /* Convert Tabs */

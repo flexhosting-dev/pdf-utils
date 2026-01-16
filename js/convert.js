@@ -3,11 +3,14 @@
 const ConvertModule = {
     // Images to PDF
     images: [],
+    imgToPdfResult: null,
+    imgToPdfFilename: null,
 
     // PDF to Images
     currentPdf: null,
     pdfDoc: null,
     pageCount: 0,
+    pdfToImgResults: [],
 
     init() {
         // Images to PDF
@@ -69,8 +72,11 @@ const ConvertModule = {
 
     clearImages() {
         this.images = [];
+        this.imgToPdfResult = null;
+        this.imgToPdfFilename = null;
         this.renderImageList();
         this.updateImageActions();
+        document.getElementById('img-to-pdf-result').style.display = 'none';
     },
 
     updateImagesOrder() {
@@ -179,12 +185,13 @@ const ConvertModule = {
 
             Progress.update('convert-progress', 100, 'Complete!');
 
-            const filename = this.images.length === 1
+            this.imgToPdfFilename = this.images.length === 1
                 ? this.images[0].name.replace(/\.[^/.]+$/, '') + '.pdf'
                 : 'images_converted.pdf';
+            this.imgToPdfResult = pdfBytes;
 
-            Utils.downloadFile(pdfBytes, filename);
-            Toast.success(`Created PDF with ${this.images.length} image(s)`);
+            this.showImgToPdfResult(pdfBytes.length);
+            Toast.success(`Created PDF with ${this.images.length} image(s) - ready to download`);
 
         } catch (error) {
             console.error('Conversion error:', error);
@@ -192,6 +199,23 @@ const ConvertModule = {
         } finally {
             document.getElementById('img-to-pdf-btn').disabled = false;
             Progress.hide('convert-progress');
+        }
+    },
+
+    showImgToPdfResult(size) {
+        const resultPanel = document.getElementById('img-to-pdf-result');
+        document.getElementById('img-to-pdf-filename').textContent = this.imgToPdfFilename;
+        document.getElementById('img-to-pdf-size').textContent = Utils.formatSize(size);
+        document.getElementById('img-to-pdf-pages').textContent = `${this.images.length} page(s)`;
+        resultPanel.style.display = 'block';
+
+        document.getElementById('img-to-pdf-download-btn').onclick = () => this.downloadImgToPdf();
+    },
+
+    downloadImgToPdf() {
+        if (this.imgToPdfResult && this.imgToPdfFilename) {
+            Utils.downloadFile(this.imgToPdfResult, this.imgToPdfFilename);
+            Toast.success('Download started');
         }
     },
 
@@ -281,10 +305,12 @@ const ConvertModule = {
         this.currentPdf = null;
         this.pdfDoc = null;
         this.pageCount = 0;
+        this.pdfToImgResults = [];
 
         document.getElementById('pdf-to-img-options').style.display = 'none';
         document.getElementById('pdf-to-img-actions').style.display = 'none';
         document.getElementById('pdf-img-drop-zone').style.display = 'block';
+        document.getElementById('pdf-to-img-result').style.display = 'none';
     },
 
     async convertPdfToImages() {
@@ -300,6 +326,7 @@ const ConvertModule = {
             document.getElementById('pdf-to-img-btn').disabled = true;
             Progress.show('convert-progress', 'Converting pages...');
 
+            this.pdfToImgResults = [];
             const baseName = this.currentPdf.name.replace('.pdf', '');
             const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
             const extension = format === 'png' ? 'png' : 'jpg';
@@ -330,21 +357,17 @@ const ConvertModule = {
                     viewport: viewport
                 }).promise;
 
-                // Convert to blob and download
+                // Convert to blob
                 const blob = await new Promise(resolve => {
                     canvas.toBlob(resolve, mimeType, format === 'jpeg' ? 0.92 : undefined);
                 });
 
                 const filename = `${baseName}_page_${String(i).padStart(3, '0')}.${extension}`;
-                Utils.downloadBlob(blob, filename);
-
-                // Small delay to prevent browser blocking downloads
-                if (this.pageCount > 1) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
+                this.pdfToImgResults.push({ blob, filename, size: blob.size });
             }
 
-            Toast.success(`Converted ${this.pageCount} page(s) to ${format.toUpperCase()}`);
+            this.showPdfToImgResult(format.toUpperCase());
+            Toast.success(`Converted ${this.pageCount} page(s) to ${format.toUpperCase()} - ready to download`);
 
         } catch (error) {
             console.error('Conversion error:', error);
@@ -352,6 +375,27 @@ const ConvertModule = {
         } finally {
             document.getElementById('pdf-to-img-btn').disabled = false;
             Progress.hide('convert-progress');
+        }
+    },
+
+    showPdfToImgResult(format) {
+        const resultPanel = document.getElementById('pdf-to-img-result');
+        const totalSize = this.pdfToImgResults.reduce((sum, f) => sum + f.size, 0);
+
+        document.getElementById('pdf-to-img-info').textContent = `${this.pdfToImgResults.length} ${format} image(s)`;
+        document.getElementById('pdf-to-img-size').textContent = Utils.formatSize(totalSize);
+        resultPanel.style.display = 'block';
+
+        document.getElementById('pdf-to-img-download-btn').onclick = () => this.downloadPdfToImg();
+    },
+
+    async downloadPdfToImg() {
+        if (this.pdfToImgResults.length === 0) return;
+
+        Toast.success(`Downloading ${this.pdfToImgResults.length} image(s)...`);
+        for (const file of this.pdfToImgResults) {
+            Utils.downloadBlob(file.blob, file.filename);
+            await new Promise(resolve => setTimeout(resolve, 150));
         }
     }
 };

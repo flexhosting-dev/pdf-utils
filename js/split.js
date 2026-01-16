@@ -6,6 +6,7 @@ const SplitModule = {
     pdfLibDoc: null,
     pageCount: 0,
     selectedPages: new Set(),
+    resultFiles: [],
 
     init() {
         // Setup drop zone
@@ -202,12 +203,14 @@ const SplitModule = {
         this.pdfLibDoc = null;
         this.pageCount = 0;
         this.selectedPages.clear();
+        this.resultFiles = [];
 
         document.getElementById('split-options').style.display = 'none';
         document.getElementById('split-actions').style.display = 'none';
         document.getElementById('split-drop-zone').style.display = 'block';
         document.getElementById('split-thumbnails').innerHTML = '';
         document.getElementById('page-input').value = '';
+        document.getElementById('split-result').style.display = 'none';
     },
 
     async splitPDF() {
@@ -241,42 +244,26 @@ const SplitModule = {
         const baseName = this.currentFile.name.replace('.pdf', '');
         const { PDFDocument } = PDFLib;
 
-        // If many pages, we'll create a zip
-        if (this.pageCount > 5) {
-            // Create individual PDFs and download them
-            for (let i = 0; i < this.pageCount; i++) {
-                Progress.update('split-progress',
-                    Math.round((i / this.pageCount) * 100),
-                    `Creating page ${i + 1}/${this.pageCount}...`
-                );
+        this.resultFiles = [];
 
-                const newPdf = await PDFDocument.create();
-                const [page] = await newPdf.copyPages(this.pdfLibDoc, [i]);
-                newPdf.addPage(page);
+        for (let i = 0; i < this.pageCount; i++) {
+            Progress.update('split-progress',
+                Math.round((i / this.pageCount) * 100),
+                `Creating page ${i + 1}/${this.pageCount}...`
+            );
 
-                const pdfBytes = await newPdf.save();
-                const filename = `${baseName}_page_${String(i + 1).padStart(3, '0')}.pdf`;
-                Utils.downloadFile(pdfBytes, filename);
+            const newPdf = await PDFDocument.create();
+            const [page] = await newPdf.copyPages(this.pdfLibDoc, [i]);
+            newPdf.addPage(page);
 
-                // Small delay to prevent browser blocking downloads
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
+            const pdfBytes = await newPdf.save();
+            const filename = `${baseName}_page_${String(i + 1).padStart(3, '0')}.pdf`;
 
-            Toast.success(`Split into ${this.pageCount} individual pages`);
-        } else {
-            // For few pages, download each
-            for (let i = 0; i < this.pageCount; i++) {
-                const newPdf = await PDFDocument.create();
-                const [page] = await newPdf.copyPages(this.pdfLibDoc, [i]);
-                newPdf.addPage(page);
-
-                const pdfBytes = await newPdf.save();
-                const filename = `${baseName}_page_${i + 1}.pdf`;
-                Utils.downloadFile(pdfBytes, filename);
-            }
-
-            Toast.success(`Split into ${this.pageCount} individual pages`);
+            this.resultFiles.push({ data: pdfBytes, filename, size: pdfBytes.length });
         }
+
+        this.showResult(`${this.pageCount} individual PDF files`);
+        Toast.success(`Split into ${this.pageCount} individual pages - ready to download`);
     },
 
     async extractSelectedPages() {
@@ -304,13 +291,42 @@ const SplitModule = {
         const pageRange = this.formatPageRange(Array.from(this.selectedPages).sort((a, b) => a - b));
         const filename = `${baseName}_pages_${pageRange}.pdf`;
 
-        Utils.downloadFile(pdfBytes, filename);
-        Toast.success(`Extracted ${this.selectedPages.size} page(s)`);
+        this.resultFiles = [{ data: pdfBytes, filename, size: pdfBytes.length }];
+        this.showResult(`${this.selectedPages.size} page(s) extracted`);
+        Toast.success(`Extracted ${this.selectedPages.size} page(s) - ready to download`);
     },
 
     formatPageRange(pages) {
         if (pages.length === 1) return String(pages[0]);
         if (pages.length === 2) return `${pages[0]}-${pages[1]}`;
         return `${pages[0]}-${pages[pages.length - 1]}`;
+    },
+
+    showResult(description) {
+        const resultPanel = document.getElementById('split-result');
+        const totalSize = this.resultFiles.reduce((sum, f) => sum + f.size, 0);
+
+        document.getElementById('split-result-info').textContent = description;
+        document.getElementById('split-result-size').textContent = Utils.formatSize(totalSize);
+        document.getElementById('split-result-count').textContent =
+            this.resultFiles.length === 1 ? '1 file' : `${this.resultFiles.length} files`;
+        resultPanel.style.display = 'block';
+
+        document.getElementById('split-download-btn').onclick = () => this.downloadResult();
+    },
+
+    async downloadResult() {
+        if (this.resultFiles.length === 0) return;
+
+        if (this.resultFiles.length === 1) {
+            Utils.downloadFile(this.resultFiles[0].data, this.resultFiles[0].filename);
+            Toast.success('Download started');
+        } else {
+            Toast.success(`Downloading ${this.resultFiles.length} files...`);
+            for (const file of this.resultFiles) {
+                Utils.downloadFile(file.data, file.filename);
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+        }
     }
 };

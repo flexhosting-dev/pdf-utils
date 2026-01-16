@@ -196,6 +196,22 @@
                 </div>
                 <p class="progress-text">Processing...</p>
             </div>
+
+            <div class="result-panel" id="merge-result" style="display: none;">
+                <h3>Merge Complete!</h3>
+                <div class="result-info">
+                    <span class="result-filename" id="merge-result-filename"></span>
+                    <span class="result-meta"><span id="merge-result-pages"></span> &bull; <span id="merge-result-size"></span></span>
+                </div>
+                <button class="btn btn-primary btn-download" id="merge-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download PDF
+                </button>
+            </div>
         </section>
 
         <!-- Split Section -->
@@ -262,6 +278,22 @@
                     <div class="progress-fill"></div>
                 </div>
                 <p class="progress-text">Processing...</p>
+            </div>
+
+            <div class="result-panel" id="split-result" style="display: none;">
+                <h3>Split Complete!</h3>
+                <div class="result-info">
+                    <span class="result-filename" id="split-result-info"></span>
+                    <span class="result-meta"><span id="split-result-count"></span> &bull; <span id="split-result-size"></span></span>
+                </div>
+                <button class="btn btn-primary btn-download" id="split-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </button>
             </div>
         </section>
 
@@ -354,6 +386,14 @@
                     </div>
                 </div>
                 <p class="savings" id="savings"></p>
+                <button class="btn btn-primary btn-download" id="compress-download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Compressed PDF
+                </button>
             </div>
         </section>
 
@@ -392,6 +432,22 @@
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         </svg>
                         Create PDF
+                    </button>
+                </div>
+
+                <div class="result-panel" id="img-to-pdf-result" style="display: none;">
+                    <h3>PDF Created!</h3>
+                    <div class="result-info">
+                        <span class="result-filename" id="img-to-pdf-filename"></span>
+                        <span class="result-meta"><span id="img-to-pdf-pages"></span> &bull; <span id="img-to-pdf-size"></span></span>
+                    </div>
+                    <button class="btn btn-primary btn-download" id="img-to-pdf-download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download PDF
                     </button>
                 </div>
             </div>
@@ -446,6 +502,22 @@
                             <polyline points="21 15 16 10 5 21"></polyline>
                         </svg>
                         Convert to Images
+                    </button>
+                </div>
+
+                <div class="result-panel" id="pdf-to-img-result" style="display: none;">
+                    <h3>Conversion Complete!</h3>
+                    <div class="result-info">
+                        <span class="result-filename" id="pdf-to-img-info"></span>
+                        <span class="result-meta">Total size: <span id="pdf-to-img-size"></span></span>
+                    </div>
+                    <button class="btn btn-primary btn-download" id="pdf-to-img-download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Images
                     </button>
                 </div>
             </div>

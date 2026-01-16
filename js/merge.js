@@ -2,6 +2,8 @@
 
 const MergeModule = {
     files: [],
+    resultData: null,
+    resultFilename: null,
 
     init() {
         // Setup drop zone
@@ -48,8 +50,11 @@ const MergeModule = {
 
     clearFiles() {
         this.files = [];
+        this.resultData = null;
+        this.resultFilename = null;
         this.renderFileList();
         this.updateActions();
+        document.getElementById('merge-result').style.display = 'none';
     },
 
     updateFilesOrder() {
@@ -161,14 +166,14 @@ const MergeModule = {
 
             // Generate filename from first file
             const baseName = this.files[0].name.replace('.pdf', '');
-            const filename = `${baseName}_merged.pdf`;
+            this.resultFilename = `${baseName}_merged.pdf`;
+            this.resultData = mergedPdfBytes;
 
-            Utils.downloadFile(mergedPdfBytes, filename);
+            // Show result panel with download button
+            this.showResult(mergedPdfBytes.length);
             Toast.success(`Successfully merged ${this.files.length} PDFs`);
 
-            setTimeout(() => {
-                Progress.hide('merge-progress');
-            }, 1000);
+            Progress.hide('merge-progress');
 
         } catch (error) {
             console.error('Merge error:', error);
@@ -176,6 +181,24 @@ const MergeModule = {
             Progress.hide('merge-progress');
         } finally {
             document.getElementById('merge-btn').disabled = false;
+        }
+    },
+
+    showResult(size) {
+        const resultPanel = document.getElementById('merge-result');
+        document.getElementById('merge-result-filename').textContent = this.resultFilename;
+        document.getElementById('merge-result-size').textContent = Utils.formatSize(size);
+        document.getElementById('merge-result-pages').textContent = `${this.files.length} files merged`;
+        resultPanel.style.display = 'block';
+
+        // Setup download button
+        document.getElementById('merge-download-btn').onclick = () => this.downloadResult();
+    },
+
+    downloadResult() {
+        if (this.resultData && this.resultFilename) {
+            Utils.downloadFile(this.resultData, this.resultFilename);
+            Toast.success('Download started');
         }
     }
 };

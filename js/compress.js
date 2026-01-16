@@ -3,6 +3,8 @@
 const CompressModule = {
     currentFile: null,
     originalSize: 0,
+    resultData: null,
+    resultFilename: null,
 
     init() {
         // Setup drop zone
@@ -44,6 +46,8 @@ const CompressModule = {
     clearFile() {
         this.currentFile = null;
         this.originalSize = 0;
+        this.resultData = null;
+        this.resultFilename = null;
 
         document.getElementById('compress-options').style.display = 'none';
         document.getElementById('compress-actions').style.display = 'none';
@@ -92,18 +96,18 @@ const CompressModule = {
             const compressedSize = compressedBytes.length;
             const savings = ((this.originalSize - compressedSize) / this.originalSize * 100).toFixed(1);
 
-            // Show results
-            this.showResults(compressedSize, savings);
-
-            // Download
+            // Store result
             const baseName = this.currentFile.name.replace('.pdf', '');
-            const filename = `${baseName}_compressed.pdf`;
-            Utils.downloadFile(compressedBytes, filename);
+            this.resultFilename = `${baseName}_compressed.pdf`;
+            this.resultData = compressedBytes;
+
+            // Show results with download button
+            this.showResults(compressedSize, savings);
 
             if (compressedSize >= this.originalSize) {
                 Toast.warning('PDF is already optimized. Compression may not reduce size further.');
             } else {
-                Toast.success(`Compressed! Saved ${savings}%`);
+                Toast.success(`Compressed! Saved ${savings}% - ready to download`);
             }
 
         } catch (error) {
@@ -159,5 +163,13 @@ const CompressModule = {
         document.getElementById('savings').textContent = savingsText;
 
         document.getElementById('compress-result').style.display = 'block';
+        document.getElementById('compress-download-btn').onclick = () => this.downloadResult();
+    },
+
+    downloadResult() {
+        if (this.resultData && this.resultFilename) {
+            Utils.downloadFile(this.resultData, this.resultFilename);
+            Toast.success('Download started');
+        }
     }
 };
