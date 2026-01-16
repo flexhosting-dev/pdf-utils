@@ -56,12 +56,16 @@ const SplitModule = {
             this.currentFile = file;
             const arrayBuffer = await Utils.readFileAsArrayBuffer(file);
 
+            // Create copies of the buffer since each library may transfer/detach it
+            const bufferForPdfJs = arrayBuffer.slice(0);
+            const bufferForPdfLib = arrayBuffer.slice(0);
+
             // Load with PDF.js for rendering
-            this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            this.pdfDoc = await pdfjsLib.getDocument({ data: bufferForPdfJs }).promise;
             this.pageCount = this.pdfDoc.numPages;
 
             // Load with pdf-lib for manipulation
-            this.pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+            this.pdfLibDoc = await PDFLib.PDFDocument.load(bufferForPdfLib, { ignoreEncryption: true });
 
             // Update UI
             document.getElementById('split-pdf-name').textContent = file.name;
