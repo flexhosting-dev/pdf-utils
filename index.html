@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Utils - Free Online PDF Tools</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span class="logo-text">PDF Utils</span>
+            </div>
+            <p class="tagline">Free, private PDF tools - all processing happens in your browser</p>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>Home</span>
+        </button>
+        <button class="nav-tab" data-tab="merge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="6" height="8" rx="1"></rect>
+                <rect x="16" y="3" width="6" height="8" rx="1"></rect>
+                <path d="M5 11v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+                <path d="M12 11v8"></path>
+                <path d="M9 16l3 3 3-3"></path>
+            </svg>
+            <span>Merge</span>
+        </button>
+        <button class="nav-tab" data-tab="split">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 3H8a2 2 0 0 0-2 2v14"></path>
+                <path d="M18 21V9a2 2 0 0 0-2-2h-2"></path>
+                <rect x="2" y="17" width="6" height="6" rx="1"></rect>
+                <rect x="16" y="15" width="6" height="8" rx="1"></rect>
+            </svg>
+            <span>Split</span>
+        </button>
+        <button class="nav-tab" data-tab="compress">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M12 18v-6"></path>
+                <path d="M9 15l3-3 3 3"></path>
+            </svg>
+            <span>Compress</span>
+        </button>
+        <button class="nav-tab" data-tab="convert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M4 12h16"></path>
+                <path d="M14 12l-4 4"></path>
+                <path d="M14 12l-4-4"></path>
+            </svg>
+            <span>Convert</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <h1 class="section-title">Choose a PDF Tool</h1>
+            <p class="section-desc">Select a tool below to get started. All processing happens locally in your browser - your files never leave your device.</p>
+
+            <div class="tool-cards">
+                <div class="tool-card" data-action="merge">
+                    <div class="tool-icon merge-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="6" height="8" rx="1"></rect>
+                            <rect x="16" y="3" width="6" height="8" rx="1"></rect>
+                            <path d="M5 11v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+                            <path d="M12 11v8"></path>
+                            <path d="M9 16l3 3 3-3"></path>
+                        </svg>
+                    </div>
+                    <h3>Merge PDFs</h3>
+                    <p>Combine multiple PDF files into a single document. Drag to reorder pages.</p>
+                </div>
+
+                <div class="tool-card" data-action="split">
+                    <div class="tool-icon split-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 3H8a2 2 0 0 0-2 2v14"></path>
+                            <path d="M18 21V9a2 2 0 0 0-2-2h-2"></path>
+                            <rect x="2" y="17" width="6" height="6" rx="1"></rect>
+                            <rect x="16" y="15" width="6" height="8" rx="1"></rect>
+                        </svg>
+                    </div>
+                    <h3>Split PDF</h3>
+                    <p>Extract specific pages or split a PDF into individual pages.</p>
+                </div>
+
+                <div class="tool-card" data-action="compress">
+                    <div class="tool-icon compress-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <path d="M12 18v-6"></path>
+                            <path d="M9 15l3-3 3 3"></path>
+                        </svg>
+                    </div>
+                    <h3>Compress PDF</h3>
+                    <p>Reduce PDF file size while maintaining quality. Perfect for email.</p>
+                </div>
+
+                <div class="tool-card" data-action="convert">
+                    <div class="tool-icon convert-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <path d="M4 12h16"></path>
+                            <path d="M14 12l-4 4"></path>
+                            <path d="M14 12l-4-4"></path>
+                        </svg>
+                    </div>
+                    <h3>Convert</h3>
+                    <p>Convert images to PDF or extract PDF pages as images.</p>
+                </div>
+            </div>
+
+            <div class="features-highlight">
+                <div class="feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                    <span>100% Private</span>
+                </div>
+                <div class="feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Fast Processing</span>
+                </div>
+                <div class="feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <span>No Upload Required</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Merge Section -->
+        <section id="merge" class="section">
+            <h2 class="section-title">Merge PDF Files</h2>
+            <p class="section-desc">Combine multiple PDFs into one. Drag to reorder files.</p>
+
+            <div class="drop-zone" id="merge-drop-zone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag & drop PDF files here</p>
+                <span>or</span>
+                <label class="file-input-label">
+                    <input type="file" id="merge-file-input" accept=".pdf" multiple hidden>
+                    Browse Files
+                </label>
+            </div>
+
+            <div class="file-list" id="merge-file-list"></div>
+
+            <div class="action-bar" id="merge-actions" style="display: none;">
+                <button class="btn btn-secondary" id="merge-clear">Clear All</button>
+                <button class="btn btn-primary" id="merge-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="6" height="8" rx="1"></rect>
+                        <rect x="16" y="3" width="6" height="8" rx="1"></rect>
+                        <path d="M5 11v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+                        <path d="M12 11v8"></path>
+                    </svg>
+                    Merge PDFs
+                </button>
+            </div>
+
+            <div class="progress-container" id="merge-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="progress-text">Processing...</p>
+            </div>
+        </section>
+
+        <!-- Split Section -->
+        <section id="split" class="section">
+            <h2 class="section-title">Split PDF</h2>
+            <p class="section-desc">Extract pages or split into individual files.</p>
+
+            <div class="drop-zone" id="split-drop-zone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag & drop a PDF file here</p>
+                <span>or</span>
+                <label class="file-input-label">
+                    <input type="file" id="split-file-input" accept=".pdf" hidden>
+                    Browse Files
+                </label>
+            </div>
+
+            <div class="split-options" id="split-options" style="display: none;">
+                <div class="pdf-info">
+                    <span class="pdf-name" id="split-pdf-name"></span>
+                    <span class="pdf-pages" id="split-pdf-pages"></span>
+                </div>
+
+                <div class="split-mode">
+                    <label class="radio-label">
+                        <input type="radio" name="split-mode" value="extract" checked>
+                        <span>Extract specific pages</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="split-mode" value="range">
+                        <span>Extract page range</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="split-mode" value="all">
+                        <span>Split into individual pages</span>
+                    </label>
+                </div>
+
+                <div class="page-selection" id="page-selection">
+                    <label>Select pages (e.g., 1, 3, 5-8):</label>
+                    <input type="text" id="page-input" placeholder="1, 3, 5-8">
+                </div>
+
+                <div class="page-thumbnails" id="split-thumbnails"></div>
+            </div>
+
+            <div class="action-bar" id="split-actions" style="display: none;">
+                <button class="btn btn-secondary" id="split-clear">Choose Different File</button>
+                <button class="btn btn-primary" id="split-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 3H8a2 2 0 0 0-2 2v14"></path>
+                        <path d="M18 21V9a2 2 0 0 0-2-2h-2"></path>
+                    </svg>
+                    Split PDF
+                </button>
+            </div>
+
+            <div class="progress-container" id="split-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="progress-text">Processing...</p>
+            </div>
+        </section>
+
+        <!-- Compress Section -->
+        <section id="compress" class="section">
+            <h2 class="section-title">Compress PDF</h2>
+            <p class="section-desc">Reduce file size while maintaining quality.</p>
+
+            <div class="drop-zone" id="compress-drop-zone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag & drop a PDF file here</p>
+                <span>or</span>
+                <label class="file-input-label">
+                    <input type="file" id="compress-file-input" accept=".pdf" hidden>
+                    Browse Files
+                </label>
+            </div>
+
+            <div class="compress-options" id="compress-options" style="display: none;">
+                <div class="pdf-info">
+                    <span class="pdf-name" id="compress-pdf-name"></span>
+                    <span class="pdf-size" id="compress-pdf-size"></span>
+                </div>
+
+                <div class="quality-selector">
+                    <label>Compression Level:</label>
+                    <div class="quality-options">
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="low">
+                            <div class="quality-card">
+                                <strong>Maximum</strong>
+                                <span>Smallest file, lower quality</span>
+                            </div>
+                        </label>
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="medium" checked>
+                            <div class="quality-card">
+                                <strong>Balanced</strong>
+                                <span>Good balance of size & quality</span>
+                            </div>
+                        </label>
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="high">
+                            <div class="quality-card">
+                                <strong>Minimum</strong>
+                                <span>Larger file, best quality</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar" id="compress-actions" style="display: none;">
+                <button class="btn btn-secondary" id="compress-clear">Choose Different File</button>
+                <button class="btn btn-primary" id="compress-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <path d="M12 18v-6"></path>
+                        <path d="M9 15l3-3 3 3"></path>
+                    </svg>
+                    Compress PDF
+                </button>
+            </div>
+
+            <div class="progress-container" id="compress-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="progress-text">Processing...</p>
+            </div>
+
+            <div class="result-panel" id="compress-result" style="display: none;">
+                <h3>Compression Complete!</h3>
+                <div class="size-comparison">
+                    <div class="size-item">
+                        <span class="size-label">Original</span>
+                        <span class="size-value" id="original-size"></span>
+                    </div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                    <div class="size-item">
+                        <span class="size-label">Compressed</span>
+                        <span class="size-value" id="compressed-size"></span>
+                    </div>
+                </div>
+                <p class="savings" id="savings"></p>
+            </div>
+        </section>
+
+        <!-- Convert Section -->
+        <section id="convert" class="section">
+            <h2 class="section-title">Convert Files</h2>
+            <p class="section-desc">Convert between images and PDF.</p>
+
+            <div class="convert-tabs">
+                <button class="convert-tab active" data-convert="img-to-pdf">Images to PDF</button>
+                <button class="convert-tab" data-convert="pdf-to-img">PDF to Images</button>
+            </div>
+
+            <!-- Images to PDF -->
+            <div class="convert-panel active" id="img-to-pdf-panel">
+                <div class="drop-zone" id="img-drop-zone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <p>Drag & drop images here</p>
+                    <span>JPG, PNG, WebP supported</span>
+                    <label class="file-input-label">
+                        <input type="file" id="img-file-input" accept="image/*" multiple hidden>
+                        Browse Images
+                    </label>
+                </div>
+
+                <div class="image-list" id="image-list"></div>
+
+                <div class="action-bar" id="img-to-pdf-actions" style="display: none;">
+                    <button class="btn btn-secondary" id="img-clear">Clear All</button>
+                    <button class="btn btn-primary" id="img-to-pdf-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        </svg>
+                        Create PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- PDF to Images -->
+            <div class="convert-panel" id="pdf-to-img-panel">
+                <div class="drop-zone" id="pdf-img-drop-zone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <p>Drag & drop a PDF file here</p>
+                    <span>or</span>
+                    <label class="file-input-label">
+                        <input type="file" id="pdf-img-file-input" accept=".pdf" hidden>
+                        Browse Files
+                    </label>
+                </div>
+
+                <div class="pdf-to-img-options" id="pdf-to-img-options" style="display: none;">
+                    <div class="pdf-info">
+                        <span class="pdf-name" id="pdf-img-name"></span>
+                        <span class="pdf-pages" id="pdf-img-pages"></span>
+                    </div>
+
+                    <div class="format-selector">
+                        <label>Output Format:</label>
+                        <div class="format-options">
+                            <label class="format-option">
+                                <input type="radio" name="img-format" value="png" checked>
+                                <span>PNG</span>
+                            </label>
+                            <label class="format-option">
+                                <input type="radio" name="img-format" value="jpeg">
+                                <span>JPG</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="scale-selector">
+                        <label>Scale: <span id="scale-value">2x</span></label>
+                        <input type="range" id="scale-input" min="1" max="4" value="2" step="0.5">
+                    </div>
+                </div>
+
+                <div class="action-bar" id="pdf-to-img-actions" style="display: none;">
+                    <button class="btn btn-secondary" id="pdf-img-clear">Choose Different File</button>
+                    <button class="btn btn-primary" id="pdf-to-img-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Convert to Images
+                    </button>
+                </div>
+            </div>
+
+            <div class="progress-container" id="convert-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p class="progress-text">Processing...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>PDF Utils - All processing happens in your browser. Your files never leave your device.</p>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/merge.js"></script>
+    <script src="js/split.js"></script>
+    <script src="js/compress.js"></script>
+    <script src="js/convert.js"></script>
+</body>
+</html>
