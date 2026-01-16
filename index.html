@@ -564,18 +564,6 @@
                     </label>
                 </div>
 
-                <div class="image-list" id="image-list"></div>
-
-                <div class="action-bar" id="img-to-pdf-actions" style="display: none;">
-                    <button class="btn btn-secondary" id="img-clear">Clear All</button>
-                    <button class="btn btn-primary" id="img-to-pdf-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        </svg>
-                        Create PDF
-                    </button>
-                </div>
-
                 <div class="result-panel" id="img-to-pdf-result" style="display: none;">
                     <h3>PDF Created!</h3>
                     <div class="result-info">
@@ -589,6 +577,18 @@
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
                         Download PDF
+                    </button>
+                </div>
+
+                <div class="image-list" id="image-list"></div>
+
+                <div class="action-bar" id="img-to-pdf-actions" style="display: none;">
+                    <button class="btn btn-secondary" id="img-clear">Clear All</button>
+                    <button class="btn btn-primary" id="img-to-pdf-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        </svg>
+                        Create PDF
                     </button>
                 </div>
             </div>
@@ -606,6 +606,22 @@
                         <input type="file" id="pdf-img-file-input" accept=".pdf" hidden>
                         Browse Files
                     </label>
+                </div>
+
+                <div class="result-panel" id="pdf-to-img-result" style="display: none;">
+                    <h3>Conversion Complete!</h3>
+                    <div class="result-info">
+                        <span class="result-filename" id="pdf-to-img-info"></span>
+                        <span class="result-meta">Total size: <span id="pdf-to-img-size"></span></span>
+                    </div>
+                    <button class="btn btn-primary btn-download" id="pdf-to-img-download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Images
+                    </button>
                 </div>
 
                 <div class="pdf-to-img-options" id="pdf-to-img-options" style="display: none;">
@@ -652,22 +668,6 @@
                             <polyline points="21 15 16 10 5 21"></polyline>
                         </svg>
                         Convert to Images
-                    </button>
-                </div>
-
-                <div class="result-panel" id="pdf-to-img-result" style="display: none;">
-                    <h3>Conversion Complete!</h3>
-                    <div class="result-info">
-                        <span class="result-filename" id="pdf-to-img-info"></span>
-                        <span class="result-meta">Total size: <span id="pdf-to-img-size"></span></span>
-                    </div>
-                    <button class="btn btn-primary btn-download" id="pdf-to-img-download-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Download Images
                     </button>
                 </div>
             </div>
