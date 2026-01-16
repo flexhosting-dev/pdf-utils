@@ -33,6 +33,12 @@ const SignModule = {
     penColor: '#000000',
     penSize: 3,
 
+    // Text boxes (per page)
+    textBoxes: {}, // { pageNum: [{ id, text, color, fontSize, x, y }] }
+    activeTextBox: null,
+    isTextDragging: false,
+    textDragOffset: { x: 0, y: 0 },
+
     // LocalStorage key
     STORAGE_KEY: 'pdf-utils-signatures',
     MAX_SIGNATURES: 5,
@@ -90,6 +96,9 @@ const SignModule = {
 
         // Setup drawing canvas
         this.setupDrawingCanvas();
+
+        // Setup text boxes
+        this.setupTextBoxes();
 
         // Load saved signatures
         this.loadSavedSignatures();
@@ -273,6 +282,218 @@ const SignModule = {
         Toast.success('Signature created');
     },
 
+    // Text Box Functions
+    setupTextBoxes() {
+        // Add text box button
+        document.getElementById('add-text-box-btn')?.addEventListener('click', () => {
+            this.addTextBox();
+        });
+
+        // Enter key in text input
+        document.getElementById('text-box-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.addTextBox();
+            }
+        });
+
+        // Global mouse/touch events for text dragging
+        document.addEventListener('mousemove', (e) => this.onTextDrag(e));
+        document.addEventListener('mouseup', () => this.endTextDrag());
+        document.addEventListener('touchmove', (e) => this.onTextDrag(e), { passive: false });
+        document.addEventListener('touchend', () => this.endTextDrag());
+    },
+
+    addTextBox() {
+        const input = document.getElementById('text-box-input');
+        const text = input.value.trim();
+
+        if (!text) {
+            Toast.warning('Please enter text');
+            return;
+        }
+
+        if (!this.pdfDoc) {
+            Toast.warning('Please load a PDF first');
+            return;
+        }
+
+        const color = document.getElementById('text-box-color').value;
+        const fontSize = parseInt(document.getElementById('text-box-size').value);
+        const page = this.currentPage;
+
+        // Initialize page array if needed
+        if (!this.textBoxes[page]) {
+            this.textBoxes[page] = [];
+        }
+
+        const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        const canvas = document.getElementById('sign-page-canvas');
+
+        // Center the text box
+        const textBox = {
+            id,
+            text,
+            color,
+            fontSize,
+            x: (canvas.width - 100) / 2,
+            y: canvas.height / 2
+        };
+
+        this.textBoxes[page].push(textBox);
+        this.renderTextBoxes();
+        this.updateTextBoxList();
+
+        // Clear input
+        input.value = '';
+
+        Toast.success('Text added - drag to position');
+    },
+
+    renderTextBoxes() {
+        const container = document.getElementById('text-boxes-container');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        const pageBoxes = this.textBoxes[this.currentPage] || [];
+
+        pageBoxes.forEach(box => {
+            const el = document.createElement('div');
+            el.className = 'draggable-text-box';
+            el.dataset.id = box.id;
+            el.style.left = box.x + 'px';
+            el.style.top = box.y + 'px';
+            el.style.color = box.color;
+            el.style.fontSize = box.fontSize + 'px';
+            el.textContent = box.text;
+
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'text-box-delete';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.removeTextBox(box.id);
+            });
+            el.appendChild(deleteBtn);
+
+            // Drag events
+            el.addEventListener('mousedown', (e) => this.startTextDrag(e, box.id));
+            el.addEventListener('touchstart', (e) => this.startTextDrag(e, box.id), { passive: false });
+
+            container.appendChild(el);
+        });
+    },
+
+    updateTextBoxList() {
+        const listContainer = document.getElementById('page-text-boxes');
+        if (!listContainer) return;
+
+        const pageBoxes = this.textBoxes[this.currentPage] || [];
+
+        if (pageBoxes.length === 0) {
+            listContainer.innerHTML = '<p class="no-text-boxes">No text boxes on this page</p>';
+            return;
+        }
+
+        listContainer.innerHTML = pageBoxes.map(box => `
+            <div class="text-box-item">
+                <span class="text-box-preview" style="color: ${box.color}">${box.text}</span>
+                <button class="text-box-remove" data-id="${box.id}" title="Remove">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+
+        // Add remove handlers
+        listContainer.querySelectorAll('.text-box-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.removeTextBox(btn.dataset.id);
+            });
+        });
+    },
+
+    removeTextBox(id) {
+        const page = this.currentPage;
+        if (this.textBoxes[page]) {
+            this.textBoxes[page] = this.textBoxes[page].filter(box => box.id !== id);
+            this.renderTextBoxes();
+            this.updateTextBoxList();
+        }
+    },
+
+    startTextDrag(e, id) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.isTextDragging = true;
+        this.activeTextBox = id;
+
+        const el = document.querySelector(`.draggable-text-box[data-id="${id}"]`);
+        const rect = el.getBoundingClientRect();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        this.textDragOffset = {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+
+        el.classList.add('dragging');
+    },
+
+    onTextDrag(e) {
+        if (!this.isTextDragging || !this.activeTextBox) return;
+
+        e.preventDefault();
+
+        const wrapper = document.getElementById('sign-canvas-wrapper');
+        const el = document.querySelector(`.draggable-text-box[data-id="${this.activeTextBox}"]`);
+        if (!wrapper || !el) return;
+
+        const wrapperRect = wrapper.getBoundingClientRect();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        let x = clientX - wrapperRect.left - this.textDragOffset.x;
+        let y = clientY - wrapperRect.top - this.textDragOffset.y;
+
+        // Constrain within wrapper
+        const maxX = wrapperRect.width - el.offsetWidth;
+        const maxY = wrapperRect.height - el.offsetHeight;
+
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        // Update stored position
+        const page = this.currentPage;
+        const box = this.textBoxes[page]?.find(b => b.id === this.activeTextBox);
+        if (box) {
+            box.x = x;
+            box.y = y;
+        }
+    },
+
+    endTextDrag() {
+        if (!this.isTextDragging) return;
+
+        const el = document.querySelector(`.draggable-text-box[data-id="${this.activeTextBox}"]`);
+        if (el) {
+            el.classList.remove('dragging');
+        }
+
+        this.isTextDragging = false;
+        this.activeTextBox = null;
+    },
+
     startDrag(e) {
         if (!this.signatureDataUrl) return;
 
@@ -451,6 +672,8 @@ const SignModule = {
 
         this.currentPage = pageNum;
         this.renderPage(pageNum);
+        this.renderTextBoxes();
+        this.updateTextBoxList();
     },
 
     updateSelectedCount() {
@@ -778,6 +1001,34 @@ const SignModule = {
                     });
                 }
 
+                // Draw text boxes for this page
+                const pageTextBoxes = this.textBoxes[pageNum] || [];
+                if (pageTextBoxes.length > 0) {
+                    const canvas = document.getElementById('sign-page-canvas');
+
+                    for (const textBox of pageTextBoxes) {
+                        // Convert canvas coordinates to PDF coordinates
+                        const textPdfX = textBox.x / this.canvasScale;
+                        // PDF Y is from bottom, canvas Y is from top
+                        // Approximate text height based on font size
+                        const textHeight = textBox.fontSize / this.canvasScale;
+                        const textPdfY = (canvas.height - textBox.y - textBox.fontSize) / this.canvasScale;
+
+                        // Parse color from hex to RGB
+                        const hexColor = textBox.color;
+                        const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+                        const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+                        const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+
+                        page.drawText(textBox.text, {
+                            x: textPdfX,
+                            y: textPdfY,
+                            size: textBox.fontSize / this.canvasScale,
+                            color: PDFLib.rgb(r, g, b)
+                        });
+                    }
+                }
+
                 processed++;
             }
 
@@ -828,6 +1079,7 @@ const SignModule = {
         this.resultFilename = null;
         this.selectedPages = new Set();
         this.pageThumbnails = [];
+        this.textBoxes = {};
 
         document.getElementById('sign-workspace').style.display = 'none';
         document.getElementById('sign-actions').style.display = 'none';
@@ -845,6 +1097,16 @@ const SignModule = {
         if (canvas) {
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Clear text boxes
+        const textBoxesContainer = document.getElementById('text-boxes-container');
+        if (textBoxesContainer) {
+            textBoxesContainer.innerHTML = '';
+        }
+        const pageTextBoxes = document.getElementById('page-text-boxes');
+        if (pageTextBoxes) {
+            pageTextBoxes.innerHTML = '<p class="no-text-boxes">No text boxes on this page</p>';
         }
     },
 

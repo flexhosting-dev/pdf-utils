@@ -933,6 +933,36 @@
                                 <span class="size-value" id="signature-size-value">150px</span>
                             </div>
                         </div>
+
+                        <div class="sign-section">
+                            <h4>Text Box <span class="text-hint">(current page only)</span></h4>
+                            <div class="text-box-controls">
+                                <input type="text" id="text-box-input" placeholder="Name, date, etc.">
+                                <div class="text-box-options">
+                                    <div class="text-color-picker">
+                                        <label>Color:</label>
+                                        <input type="color" id="text-box-color" value="#000000">
+                                    </div>
+                                    <div class="text-size-picker">
+                                        <label>Size:</label>
+                                        <select id="text-box-size">
+                                            <option value="12">12px</option>
+                                            <option value="14">14px</option>
+                                            <option value="16" selected>16px</option>
+                                            <option value="18">18px</option>
+                                            <option value="20">20px</option>
+                                            <option value="24">24px</option>
+                                            <option value="28">28px</option>
+                                            <option value="32">32px</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary btn-sm" id="add-text-box-btn">Add Text</button>
+                            </div>
+                            <div class="page-text-boxes" id="page-text-boxes">
+                                <p class="no-text-boxes">No text boxes on this page</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="sign-main-area">
@@ -947,6 +977,7 @@
                                 <div class="signature-draggable" id="signature-draggable" style="display: none;">
                                     <img id="draggable-signature" alt="Signature" draggable="false">
                                 </div>
+                                <div class="text-boxes-container" id="text-boxes-container"></div>
                             </div>
                             <p class="canvas-hint" id="canvas-hint">Load a signature and drag it to position</p>
                         </div>

@@ -2275,3 +2275,177 @@ body {
         align-items: flex-start;
     }
 }
+
+/* Text Box Styles */
+.text-hint {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+}
+
+.text-box-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.text-box-controls input[type="text"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.text-box-controls input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.text-box-options {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.text-color-picker,
+.text-size-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.text-color-picker input[type="color"] {
+    width: 28px;
+    height: 24px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.text-size-picker select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.page-text-boxes {
+    margin-top: 0.75rem;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.no-text-boxes {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.text-box-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.5rem;
+    background: var(--bg-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.35rem;
+}
+
+.text-box-preview {
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+}
+
+.text-box-remove {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.text-box-remove:hover {
+    background: var(--error-color);
+    color: white;
+}
+
+.text-box-remove svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Draggable text boxes on canvas */
+.text-boxes-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.draggable-text-box {
+    position: absolute;
+    cursor: grab;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px dashed var(--primary-color);
+    border-radius: 3px;
+    pointer-events: auto;
+    user-select: none;
+    white-space: nowrap;
+    transition: box-shadow 0.15s ease;
+}
+
+.draggable-text-box:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.draggable-text-box.dragging {
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+}
+
+.text-box-delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.draggable-text-box:hover .text-box-delete {
+    opacity: 1;
+}
