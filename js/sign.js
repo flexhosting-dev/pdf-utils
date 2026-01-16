@@ -175,13 +175,17 @@ const SignModule = {
             this.currentFile = file;
             const arrayBuffer = await Utils.readFileAsArrayBuffer(file);
 
+            // Create copies of ArrayBuffer for each library (prevents detachment issues)
+            const pdfJsBuffer = arrayBuffer.slice(0);
+            const pdfLibBuffer = arrayBuffer.slice(0);
+
             // Load with PDF.js for rendering
-            this.pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            this.pdfJsDoc = await pdfjsLib.getDocument({ data: pdfJsBuffer }).promise;
             this.pageCount = this.pdfJsDoc.numPages;
 
             // Load with pdf-lib for manipulation
             const { PDFDocument } = PDFLib;
-            this.pdfDoc = await PDFDocument.load(arrayBuffer);
+            this.pdfDoc = await PDFDocument.load(pdfLibBuffer);
 
             // Update UI
             document.getElementById('sign-pdf-name').textContent = file.name;
