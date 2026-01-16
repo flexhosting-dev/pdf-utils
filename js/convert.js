@@ -53,7 +53,8 @@ const ConvertModule = {
                         id: Utils.generateId(),
                         file: file,
                         name: file.name,
-                        dataUrl: dataUrl
+                        dataUrl: dataUrl,
+                        rotation: 0
                     });
                 } catch (error) {
                     console.error('Error loading image:', error);
@@ -62,6 +63,19 @@ const ConvertModule = {
         }
         this.renderImageList();
         this.updateImageActions();
+    },
+
+    rotateImage(id) {
+        const img = this.images.find(i => i.id === id);
+        if (img) {
+            img.rotation = (img.rotation + 90) % 360;
+            // Update thumbnail rotation
+            const item = document.querySelector(`.image-item[data-id="${id}"]`);
+            if (item) {
+                const imgEl = item.querySelector('img');
+                imgEl.style.transform = `rotate(${img.rotation}deg)`;
+            }
+        }
     },
 
     removeImage(id) {
@@ -110,15 +124,26 @@ const ConvertModule = {
             item.draggable = true;
 
             item.innerHTML = `
-                <img src="${imageData.dataUrl}" alt="${imageData.name}" draggable="false">
+                <img src="${imageData.dataUrl}" alt="${imageData.name}" draggable="false" style="transform: rotate(${imageData.rotation || 0}deg)">
                 <span class="image-order">${index + 1}</span>
-                <button class="remove-btn" data-id="${imageData.id}">
+                <button class="rotate-btn" data-id="${imageData.id}" title="Rotate 90°">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                </button>
+                <button class="remove-btn" data-id="${imageData.id}" title="Remove">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
             `;
+
+            item.querySelector('.rotate-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.rotateImage(imageData.id);
+            });
 
             item.querySelector('.remove-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -155,20 +180,26 @@ const ConvertModule = {
                 );
 
                 try {
-                    const arrayBuffer = await Utils.readFileAsArrayBuffer(imageData.file);
-                    const uint8Array = new Uint8Array(arrayBuffer);
-
                     let image;
-                    const type = imageData.file.type.toLowerCase();
+                    const rotation = imageData.rotation || 0;
 
-                    if (type.includes('png')) {
-                        image = await pdfDoc.embedPng(uint8Array);
-                    } else if (type.includes('jpeg') || type.includes('jpg')) {
-                        image = await pdfDoc.embedJpg(uint8Array);
+                    // If rotation is needed, use canvas to rotate
+                    if (rotation !== 0) {
+                        const rotatedData = await this.rotateImageData(imageData.dataUrl, rotation);
+                        image = await pdfDoc.embedJpg(rotatedData);
                     } else {
-                        // For other formats, convert to PNG via canvas
-                        const pngData = await this.convertImageToPng(imageData.dataUrl);
-                        image = await pdfDoc.embedPng(pngData);
+                        const arrayBuffer = await Utils.readFileAsArrayBuffer(imageData.file);
+                        const uint8Array = new Uint8Array(arrayBuffer);
+                        const type = imageData.file.type.toLowerCase();
+
+                        if (type.includes('png')) {
+                            image = await pdfDoc.embedPng(uint8Array);
+                        } else if (type.includes('jpeg') || type.includes('jpg')) {
+                            image = await pdfDoc.embedJpg(uint8Array);
+                        } else {
+                            const pngData = await this.convertImageToPng(imageData.dataUrl);
+                            image = await pdfDoc.embedPng(pngData);
+                        }
                     }
 
                     // Create page with image dimensions
@@ -245,6 +276,42 @@ const ConvertModule = {
                         reject(new Error('Failed to convert image'));
                     }
                 }, 'image/png');
+            };
+            img.onerror = reject;
+            img.src = dataUrl;
+        });
+    },
+
+    rotateImageData(dataUrl, degrees) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Swap dimensions for 90 or 270 degree rotation
+                if (degrees === 90 || degrees === 270) {
+                    canvas.width = img.height;
+                    canvas.height = img.width;
+                } else {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+
+                // Move to center, rotate, then draw
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate((degrees * Math.PI) / 180);
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        blob.arrayBuffer().then(buffer => {
+                            resolve(new Uint8Array(buffer));
+                        });
+                    } else {
+                        reject(new Error('Failed to rotate image'));
+                    }
+                }, 'image/jpeg', 0.92);
             };
             img.onerror = reject;
             img.src = dataUrl;

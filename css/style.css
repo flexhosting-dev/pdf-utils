@@ -835,6 +835,7 @@ body {
     object-fit: cover;
     pointer-events: none;
     user-select: none;
+    transition: transform 0.3s ease;
 }
 
 .image-order {
@@ -850,10 +851,10 @@ body {
     pointer-events: none;
 }
 
-.image-item .remove-btn {
+.image-item .remove-btn,
+.image-item .rotate-btn {
     position: absolute;
     top: 0.5rem;
-    right: 0.5rem;
     width: 24px;
     height: 24px;
     border: none;
@@ -868,11 +869,25 @@ body {
     transition: var(--transition);
 }
 
-.image-item:hover .remove-btn {
+.image-item .remove-btn {
+    right: 0.5rem;
+}
+
+.image-item .rotate-btn {
+    right: 2rem;
+}
+
+.image-item .rotate-btn:hover {
+    background: var(--primary-color);
+}
+
+.image-item:hover .remove-btn,
+.image-item:hover .rotate-btn {
     opacity: 1;
 }
 
-.image-item .remove-btn svg {
+.image-item .remove-btn svg,
+.image-item .rotate-btn svg {
     width: 14px;
     height: 14px;
 }
