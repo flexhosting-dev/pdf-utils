@@ -468,9 +468,8 @@ const SignModule = {
         const page = await this.pdfJsDoc.getPage(pageNum);
         const viewport = page.getViewport({ scale: 1.0 });
 
-        // Calculate scale to fit in container - larger for better positioning
-        const wrapper = document.getElementById('sign-canvas-wrapper');
-        const maxWidth = Math.min(wrapper.clientWidth - 20, 700);
+        // Calculate scale using fixed max dimensions (not wrapper size which shrinks)
+        const maxWidth = 700;
         const maxHeight = 600;
 
         const scaleX = maxWidth / viewport.width;
