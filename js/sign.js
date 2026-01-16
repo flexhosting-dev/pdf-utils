@@ -11,6 +11,10 @@ const SignModule = {
     resultData: null,
     resultFilename: null,
 
+    // Page selection
+    selectedPages: new Set(),
+    pageThumbnails: [],
+
     // Signature position
     signaturePosition: { x: 0, y: 0 },
     signatureSize: 150,
@@ -21,6 +25,13 @@ const SignModule = {
     canvasScale: 1,
     pdfPageWidth: 0,
     pdfPageHeight: 0,
+
+    // Drawing canvas
+    drawCanvas: null,
+    drawCtx: null,
+    isDrawing: false,
+    penColor: '#000000',
+    penSize: 3,
 
     // LocalStorage key
     STORAGE_KEY: 'pdf-utils-signatures',
@@ -66,14 +77,6 @@ const SignModule = {
             });
         });
 
-        // Page navigation
-        document.getElementById('sign-prev-page')?.addEventListener('click', () => {
-            this.goToPage(this.currentPage - 1);
-        });
-        document.getElementById('sign-next-page')?.addEventListener('click', () => {
-            this.goToPage(this.currentPage + 1);
-        });
-
         // Signature size slider
         const sizeSlider = document.getElementById('signature-size');
         sizeSlider?.addEventListener('input', () => {
@@ -84,6 +87,9 @@ const SignModule = {
 
         // Setup draggable signature
         this.setupDraggable();
+
+        // Setup drawing canvas
+        this.setupDrawingCanvas();
 
         // Load saved signatures
         this.loadSavedSignatures();
@@ -104,6 +110,167 @@ const SignModule = {
         draggable.addEventListener('touchstart', (e) => this.startDrag(e), { passive: false });
         document.addEventListener('touchmove', (e) => this.onDrag(e), { passive: false });
         document.addEventListener('touchend', () => this.endDrag());
+    },
+
+    setupDrawingCanvas() {
+        // Draw signature button
+        document.getElementById('draw-signature-btn')?.addEventListener('click', () => {
+            this.openDrawModal();
+        });
+
+        // Close modal
+        document.getElementById('close-draw-modal')?.addEventListener('click', () => {
+            this.closeDrawModal();
+        });
+
+        // Click outside to close
+        document.getElementById('draw-signature-modal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'draw-signature-modal') {
+                this.closeDrawModal();
+            }
+        });
+
+        // Clear canvas button
+        document.getElementById('clear-draw-canvas')?.addEventListener('click', () => {
+            this.clearDrawCanvas();
+        });
+
+        // Use signature button
+        document.getElementById('use-drawn-signature')?.addEventListener('click', () => {
+            this.useDrawnSignature();
+        });
+
+        // Color buttons
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.penColor = btn.dataset.color;
+            });
+        });
+
+        // Pen size
+        document.getElementById('pen-size')?.addEventListener('input', (e) => {
+            this.penSize = parseInt(e.target.value);
+        });
+    },
+
+    openDrawModal() {
+        const modal = document.getElementById('draw-signature-modal');
+        modal.style.display = 'flex';
+
+        // Initialize canvas
+        this.drawCanvas = document.getElementById('draw-signature-canvas');
+        this.drawCtx = this.drawCanvas.getContext('2d');
+
+        // Set canvas size
+        const container = this.drawCanvas.parentElement;
+        this.drawCanvas.width = Math.min(500, container.clientWidth - 20);
+        this.drawCanvas.height = 200;
+
+        // White background
+        this.drawCtx.fillStyle = '#ffffff';
+        this.drawCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height);
+
+        // Setup drawing events
+        this.drawCanvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+        this.drawCanvas.addEventListener('mousemove', (e) => this.draw(e));
+        this.drawCanvas.addEventListener('mouseup', () => this.stopDrawing());
+        this.drawCanvas.addEventListener('mouseleave', () => this.stopDrawing());
+
+        this.drawCanvas.addEventListener('touchstart', (e) => this.startDrawing(e), { passive: false });
+        this.drawCanvas.addEventListener('touchmove', (e) => this.draw(e), { passive: false });
+        this.drawCanvas.addEventListener('touchend', () => this.stopDrawing());
+    },
+
+    closeDrawModal() {
+        document.getElementById('draw-signature-modal').style.display = 'none';
+    },
+
+    startDrawing(e) {
+        e.preventDefault();
+        this.isDrawing = true;
+
+        const rect = this.drawCanvas.getBoundingClientRect();
+        const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+        this.drawCtx.beginPath();
+        this.drawCtx.moveTo(x, y);
+    },
+
+    draw(e) {
+        if (!this.isDrawing) return;
+        e.preventDefault();
+
+        const rect = this.drawCanvas.getBoundingClientRect();
+        const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+        this.drawCtx.lineTo(x, y);
+        this.drawCtx.strokeStyle = this.penColor;
+        this.drawCtx.lineWidth = this.penSize;
+        this.drawCtx.lineCap = 'round';
+        this.drawCtx.lineJoin = 'round';
+        this.drawCtx.stroke();
+    },
+
+    stopDrawing() {
+        this.isDrawing = false;
+    },
+
+    clearDrawCanvas() {
+        if (this.drawCtx) {
+            this.drawCtx.fillStyle = '#ffffff';
+            this.drawCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height);
+        }
+    },
+
+    useDrawnSignature() {
+        if (!this.drawCanvas) return;
+
+        // Check if canvas has any drawing (not just white)
+        const imageData = this.drawCtx.getImageData(0, 0, this.drawCanvas.width, this.drawCanvas.height);
+        const data = imageData.data;
+        let hasDrawing = false;
+
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255) {
+                hasDrawing = true;
+                break;
+            }
+        }
+
+        if (!hasDrawing) {
+            Toast.warning('Please draw a signature first');
+            return;
+        }
+
+        // Get data URL with transparency
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = this.drawCanvas.width;
+        tempCanvas.height = this.drawCanvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Copy and make white transparent
+        tempCtx.drawImage(this.drawCanvas, 0, 0);
+        const tempData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const pixels = tempData.data;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i] > 250 && pixels[i + 1] > 250 && pixels[i + 2] > 250) {
+                pixels[i + 3] = 0; // Make white transparent
+            }
+        }
+
+        tempCtx.putImageData(tempData, 0, 0);
+
+        const dataUrl = tempCanvas.toDataURL('image/png');
+        this.setSignature(dataUrl);
+        this.saveSignatureToStorage(dataUrl);
+
+        this.closeDrawModal();
+        Toast.success('Signature created');
     },
 
     startDrag(e) {
@@ -187,14 +354,22 @@ const SignModule = {
             const { PDFDocument } = PDFLib;
             this.pdfDoc = await PDFDocument.load(pdfLibBuffer);
 
+            // Initialize selected pages (all selected by default)
+            this.selectedPages = new Set();
+            for (let i = 1; i <= this.pageCount; i++) {
+                this.selectedPages.add(i);
+            }
+
             // Update UI
             document.getElementById('sign-pdf-name').textContent = file.name;
             document.getElementById('sign-pdf-pages').textContent = `${this.pageCount} pages`;
-            document.getElementById('sign-total-pages').textContent = this.pageCount;
             document.getElementById('sign-workspace').style.display = 'block';
             document.getElementById('sign-actions').style.display = 'flex';
             document.getElementById('sign-drop-zone').style.display = 'none';
             document.getElementById('sign-result').style.display = 'none';
+
+            // Generate thumbnails
+            await this.generateThumbnails();
 
             // Render first page
             this.currentPage = 1;
@@ -210,6 +385,82 @@ const SignModule = {
         }
     },
 
+    async generateThumbnails() {
+        const container = document.getElementById('sign-page-thumbnails');
+        if (!container) return;
+
+        container.innerHTML = '<div class="loading-thumbnails">Generating previews...</div>';
+        this.pageThumbnails = [];
+
+        const thumbnailsHtml = [];
+
+        for (let i = 1; i <= this.pageCount; i++) {
+            try {
+                const canvas = await Utils.createThumbnail(this.pdfJsDoc, i, 120);
+                const dataUrl = canvas.toDataURL();
+
+                thumbnailsHtml.push(`
+                    <div class="sign-thumb-item ${i === 1 ? 'active' : ''}" data-page="${i}">
+                        <div class="sign-thumb-checkbox">
+                            <input type="checkbox" id="sign-page-${i}" checked data-page="${i}">
+                            <label for="sign-page-${i}"></label>
+                        </div>
+                        <img src="${dataUrl}" alt="Page ${i}">
+                        <span class="sign-thumb-number">${i}</span>
+                    </div>
+                `);
+
+                this.pageThumbnails.push({ page: i, dataUrl });
+            } catch (error) {
+                console.error(`Error generating thumbnail for page ${i}:`, error);
+            }
+        }
+
+        container.innerHTML = thumbnailsHtml.join('');
+
+        // Add click handlers
+        container.querySelectorAll('.sign-thumb-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.type !== 'checkbox' && !e.target.closest('.sign-thumb-checkbox')) {
+                    const page = parseInt(item.dataset.page);
+                    this.selectPage(page);
+                }
+            });
+        });
+
+        // Add checkbox handlers
+        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const page = parseInt(checkbox.dataset.page);
+                if (checkbox.checked) {
+                    this.selectedPages.add(page);
+                } else {
+                    this.selectedPages.delete(page);
+                }
+                this.updateSelectedCount();
+            });
+        });
+    },
+
+    selectPage(pageNum) {
+        // Update active state
+        document.querySelectorAll('.sign-thumb-item').forEach(item => {
+            item.classList.toggle('active', parseInt(item.dataset.page) === pageNum);
+        });
+
+        this.currentPage = pageNum;
+        this.renderPage(pageNum);
+    },
+
+    updateSelectedCount() {
+        const count = this.selectedPages.size;
+        const pagesEl = document.getElementById('sign-pdf-pages');
+        if (pagesEl) {
+            pagesEl.textContent = `${count}/${this.pageCount} pages selected`;
+        }
+    },
+
     async renderPage(pageNum) {
         const canvas = document.getElementById('sign-page-canvas');
         if (!canvas || !this.pdfJsDoc) return;
@@ -217,14 +468,14 @@ const SignModule = {
         const page = await this.pdfJsDoc.getPage(pageNum);
         const viewport = page.getViewport({ scale: 1.0 });
 
-        // Calculate scale to fit in container
+        // Calculate scale to fit in container - larger for better positioning
         const wrapper = document.getElementById('sign-canvas-wrapper');
-        const maxWidth = wrapper.clientWidth - 40;
-        const maxHeight = 500;
+        const maxWidth = Math.min(wrapper.clientWidth - 20, 700);
+        const maxHeight = 600;
 
         const scaleX = maxWidth / viewport.width;
         const scaleY = maxHeight / viewport.height;
-        this.canvasScale = Math.min(scaleX, scaleY, 1.5);
+        this.canvasScale = Math.min(scaleX, scaleY, 2.0);
 
         const scaledViewport = page.getViewport({ scale: this.canvasScale });
 
@@ -243,24 +494,11 @@ const SignModule = {
             viewport: scaledViewport
         }).promise;
 
-        // Update page indicator
-        document.getElementById('sign-current-page').textContent = pageNum;
-
-        // Update nav buttons
-        document.getElementById('sign-prev-page').disabled = pageNum <= 1;
-        document.getElementById('sign-next-page').disabled = pageNum >= this.pageCount;
-
         // Reset signature position for footer mode
         const placementMode = document.querySelector('input[name="placement-mode"]:checked').value;
         if (placementMode === 'footer') {
             this.positionSignatureInFooter();
         }
-    },
-
-    goToPage(pageNum) {
-        if (pageNum < 1 || pageNum > this.pageCount) return;
-        this.currentPage = pageNum;
-        this.renderPage(pageNum);
     },
 
     async loadSignature(file) {
@@ -370,14 +608,6 @@ const SignModule = {
     },
 
     onPlacementModeChange(mode) {
-        const pageSelector = document.getElementById('page-selector-section');
-
-        if (mode === 'single-page') {
-            pageSelector.style.display = 'block';
-        } else {
-            pageSelector.style.display = 'none';
-        }
-
         if (mode === 'footer' && this.signatureDataUrl) {
             this.positionSignatureInFooter();
         }
@@ -479,6 +709,11 @@ const SignModule = {
             return;
         }
 
+        if (this.selectedPages.size === 0) {
+            Toast.warning('Please select at least one page');
+            return;
+        }
+
         try {
             document.getElementById('sign-btn').disabled = true;
             Progress.show('sign-progress', 'Applying signature...');
@@ -510,17 +745,21 @@ const SignModule = {
             // PDF Y is from bottom, canvas Y is from top
             const pdfY = (canvas.height - this.signaturePosition.y - (this.signatureSize * (1/aspectRatio))) / this.canvasScale;
 
-            if (placementMode === 'footer') {
-                // Apply to all pages at footer
-                for (let i = 0; i < pages.length; i++) {
-                    Progress.update('sign-progress',
-                        Math.round((i / pages.length) * 90),
-                        `Signing page ${i + 1}/${pages.length}...`
-                    );
+            const pagesToSign = placementMode === 'single-page'
+                ? [this.currentPage]
+                : Array.from(this.selectedPages);
 
-                    const page = pages[i];
-                    const { width, height } = page.getSize();
+            let processed = 0;
+            for (const pageNum of pagesToSign) {
+                Progress.update('sign-progress',
+                    Math.round((processed / pagesToSign.length) * 90),
+                    `Signing page ${pageNum}...`
+                );
 
+                const page = pages[pageNum - 1];
+                const { width, height } = page.getSize();
+
+                if (placementMode === 'footer') {
                     // Position at bottom center
                     const footerX = (width - sigWidth) / 2;
                     const footerY = 30;
@@ -531,16 +770,7 @@ const SignModule = {
                         width: sigWidth,
                         height: sigHeight
                     });
-                }
-            } else if (placementMode === 'all-pages') {
-                // Apply to all pages at same position
-                for (let i = 0; i < pages.length; i++) {
-                    Progress.update('sign-progress',
-                        Math.round((i / pages.length) * 90),
-                        `Signing page ${i + 1}/${pages.length}...`
-                    );
-
-                    const page = pages[i];
+                } else {
                     page.drawImage(signatureImage, {
                         x: pdfX,
                         y: pdfY,
@@ -548,17 +778,8 @@ const SignModule = {
                         height: sigHeight
                     });
                 }
-            } else {
-                // Single page only
-                Progress.update('sign-progress', 50, `Signing page ${this.currentPage}...`);
 
-                const page = pages[this.currentPage - 1];
-                page.drawImage(signatureImage, {
-                    x: pdfX,
-                    y: pdfY,
-                    width: sigWidth,
-                    height: sigHeight
-                });
+                processed++;
             }
 
             Progress.update('sign-progress', 95, 'Generating PDF...');
@@ -572,7 +793,7 @@ const SignModule = {
 
             // Show result
             document.getElementById('sign-result-filename').textContent = this.resultFilename;
-            document.getElementById('sign-result-pages').textContent = this.pageCount;
+            document.getElementById('sign-result-pages').textContent = pagesToSign.length;
             document.getElementById('sign-result-size').textContent = Utils.formatSize(pdfBytes.length);
             document.getElementById('sign-result').style.display = 'block';
 
@@ -606,11 +827,19 @@ const SignModule = {
         this.currentPage = 1;
         this.resultData = null;
         this.resultFilename = null;
+        this.selectedPages = new Set();
+        this.pageThumbnails = [];
 
         document.getElementById('sign-workspace').style.display = 'none';
         document.getElementById('sign-actions').style.display = 'none';
         document.getElementById('sign-drop-zone').style.display = 'block';
         document.getElementById('sign-result').style.display = 'none';
+
+        // Clear thumbnails
+        const thumbContainer = document.getElementById('sign-page-thumbnails');
+        if (thumbContainer) {
+            thumbContainer.innerHTML = '';
+        }
 
         // Clear canvas
         const canvas = document.getElementById('sign-page-canvas');

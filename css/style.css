@@ -1922,6 +1922,140 @@ body {
     min-width: 50px;
 }
 
+.signature-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.signature-buttons .signature-upload-btn {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.signature-draw-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.signature-draw-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.signature-draw-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sign-main-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sign-pages-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}
+
+.sign-pages-section h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.pages-hint {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.sign-page-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.25rem;
+}
+
+.loading-thumbnails {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 1rem;
+    font-size: 0.875rem;
+}
+
+.sign-thumb-item {
+    position: relative;
+    width: 80px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    background: white;
+}
+
+.sign-thumb-item:hover {
+    border-color: var(--primary-color);
+}
+
+.sign-thumb-item.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.sign-thumb-item img {
+    width: 100%;
+    display: block;
+}
+
+.sign-thumb-checkbox {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 5;
+}
+
+.sign-thumb-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.sign-thumb-checkbox label {
+    display: none;
+}
+
+.sign-thumb-number {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.625rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
 .sign-canvas-area {
     display: flex;
     flex-direction: column;
@@ -1936,6 +2070,13 @@ body {
     border-radius: var(--radius-md);
     overflow: hidden;
     max-width: 100%;
+}
+
+.canvas-wrapper.enlarged {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .canvas-wrapper canvas {
@@ -1972,6 +2113,131 @@ body {
     text-align: center;
 }
 
+/* Draw Signature Modal */
+.draw-signature-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.draw-signature-content {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 550px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+}
+
+.draw-signature-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.draw-signature-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modal-close-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.modal-close-btn:hover {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.modal-close-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.draw-signature-body {
+    padding: 1.25rem;
+}
+
+.draw-signature-body canvas {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.draw-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.draw-signature-options {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1.25rem 1rem;
+    flex-wrap: wrap;
+}
+
+.draw-signature-options label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.color-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.color-btn {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.color-btn:hover,
+.color-btn.active {
+    border-color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.draw-signature-options input[type="range"] {
+    width: 80px;
+}
+
+.draw-signature-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    justify-content: flex-end;
+}
+
 .sign-icon {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
@@ -1985,7 +2251,7 @@ body {
         order: 2;
     }
 
-    .sign-canvas-area {
+    .sign-main-area {
         order: 1;
     }
 }
@@ -1994,5 +2260,18 @@ body {
     .saved-signature-item {
         width: 50px;
         height: 38px;
+    }
+
+    .sign-thumb-item {
+        width: 60px;
+    }
+
+    .signature-buttons {
+        flex-direction: column;
+    }
+
+    .draw-signature-options {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

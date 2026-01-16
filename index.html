@@ -873,7 +873,7 @@
                     <div class="sign-sidebar">
                         <div class="sign-section">
                             <h4>Signature</h4>
-                            <div class="signature-upload">
+                            <div class="signature-buttons">
                                 <label class="signature-upload-btn">
                                     <input type="file" id="signature-file-input" accept="image/*" hidden>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -881,8 +881,14 @@
                                         <polyline points="17 8 12 3 7 8"></polyline>
                                         <line x1="12" y1="3" x2="12" y2="15"></line>
                                     </svg>
-                                    Upload Signature Image
+                                    Upload Image
                                 </label>
+                                <button class="signature-draw-btn" id="draw-signature-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                    Draw Signature
+                                </button>
                             </div>
                             <div class="current-signature" id="current-signature" style="display: none;">
                                 <img id="signature-preview" alt="Signature">
@@ -920,42 +926,63 @@
                             </div>
                         </div>
 
-                        <div class="sign-section" id="page-selector-section" style="display: none;">
-                            <h4>Select Page</h4>
-                            <div class="page-selector">
-                                <button class="page-nav-btn" id="sign-prev-page" disabled>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="15 18 9 12 15 6"></polyline>
-                                    </svg>
-                                </button>
-                                <span class="page-indicator">
-                                    Page <span id="sign-current-page">1</span> of <span id="sign-total-pages">1</span>
-                                </span>
-                                <button class="page-nav-btn" id="sign-next-page">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
                         <div class="sign-section">
                             <h4>Signature Size</h4>
                             <div class="size-slider">
-                                <input type="range" id="signature-size" min="50" max="300" value="150">
+                                <input type="range" id="signature-size" min="30" max="300" value="150">
                                 <span class="size-value" id="signature-size-value">150px</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="sign-canvas-area">
-                        <div class="canvas-wrapper" id="sign-canvas-wrapper">
-                            <canvas id="sign-page-canvas"></canvas>
-                            <div class="signature-draggable" id="signature-draggable" style="display: none;">
-                                <img id="draggable-signature" alt="Signature" draggable="false">
-                            </div>
+                    <div class="sign-main-area">
+                        <div class="sign-pages-section">
+                            <h4>Pages <span class="pages-hint">(click to preview, uncheck to exclude)</span></h4>
+                            <div class="sign-page-thumbnails" id="sign-page-thumbnails"></div>
                         </div>
-                        <p class="canvas-hint" id="canvas-hint">Load a signature and drag it to position</p>
+
+                        <div class="sign-canvas-area" id="sign-canvas-area">
+                            <div class="canvas-wrapper enlarged" id="sign-canvas-wrapper">
+                                <canvas id="sign-page-canvas"></canvas>
+                                <div class="signature-draggable" id="signature-draggable" style="display: none;">
+                                    <img id="draggable-signature" alt="Signature" draggable="false">
+                                </div>
+                            </div>
+                            <p class="canvas-hint" id="canvas-hint">Load a signature and drag it to position</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Draw Signature Modal -->
+            <div class="draw-signature-modal" id="draw-signature-modal" style="display: none;">
+                <div class="draw-signature-content">
+                    <div class="draw-signature-header">
+                        <h3>Draw Your Signature</h3>
+                        <button class="modal-close-btn" id="close-draw-modal">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="draw-signature-body">
+                        <canvas id="draw-signature-canvas"></canvas>
+                        <p class="draw-hint">Use your mouse or finger to draw your signature</p>
+                    </div>
+                    <div class="draw-signature-options">
+                        <label>Pen Color:</label>
+                        <div class="color-options">
+                            <button class="color-btn active" data-color="#000000" style="background: #000000;"></button>
+                            <button class="color-btn" data-color="#1e40af" style="background: #1e40af;"></button>
+                            <button class="color-btn" data-color="#991b1b" style="background: #991b1b;"></button>
+                        </div>
+                        <label>Pen Size:</label>
+                        <input type="range" id="pen-size" min="1" max="8" value="3">
+                    </div>
+                    <div class="draw-signature-actions">
+                        <button class="btn btn-secondary" id="clear-draw-canvas">Clear</button>
+                        <button class="btn btn-primary" id="use-drawn-signature">Use Signature</button>
                     </div>
                 </div>
             </div>
