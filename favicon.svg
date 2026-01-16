@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <!-- Document shape -->
+  <path d="M6 4C6 2.89543 6.89543 2 8 2H18L26 10V28C26 29.1046 25.1046 30 24 30H8C6.89543 30 6 29.1046 6 28V4Z" fill="url(#grad)"/>
+  <!-- Folded corner -->
+  <path d="M18 2V8C18 9.10457 18.8954 10 20 10H26L18 2Z" fill="white" fill-opacity="0.3"/>
+  <!-- PDF text -->
+  <text x="16" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" fill="white" text-anchor="middle">PDF</text>
+</svg>
