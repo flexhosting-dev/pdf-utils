@@ -2,6 +2,7 @@
 
 const CompressModule = {
     currentFile: null,
+    pdfDoc: null,
     originalSize: 0,
     resultData: null,
     resultFilename: null,
@@ -30,28 +31,43 @@ const CompressModule = {
         });
     },
 
-    loadPDF(file) {
+    async loadPDF(file) {
         if (!file || (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf'))) {
             Toast.warning('Please select a PDF file');
             return;
         }
 
-        this.currentFile = file;
-        this.originalSize = file.size;
+        try {
+            Progress.show('compress-progress', 'Loading PDF...');
 
-        // Update UI
-        document.getElementById('compress-pdf-name').textContent = file.name;
-        document.getElementById('compress-pdf-size').textContent = Utils.formatSize(file.size);
-        document.getElementById('compress-options').style.display = 'block';
-        document.getElementById('compress-actions').style.display = 'flex';
-        document.getElementById('compress-drop-zone').style.display = 'none';
-        document.getElementById('compress-result').style.display = 'none';
+            this.currentFile = file;
+            this.originalSize = file.size;
 
-        Toast.success('PDF loaded successfully');
+            // Load with PDF.js for rendering
+            const arrayBuffer = await Utils.readFileAsArrayBuffer(file);
+            this.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+            // Update UI
+            document.getElementById('compress-pdf-name').textContent = file.name;
+            document.getElementById('compress-pdf-size').textContent = Utils.formatSize(file.size);
+            document.getElementById('compress-options').style.display = 'block';
+            document.getElementById('compress-actions').style.display = 'flex';
+            document.getElementById('compress-drop-zone').style.display = 'none';
+            document.getElementById('compress-result').style.display = 'none';
+
+            Progress.hide('compress-progress');
+            Toast.success('PDF loaded successfully');
+
+        } catch (error) {
+            console.error('Error loading PDF:', error);
+            Toast.error('Failed to load PDF: ' + error.message);
+            Progress.hide('compress-progress');
+        }
     },
 
     clearFile() {
         this.currentFile = null;
+        this.pdfDoc = null;
         this.originalSize = 0;
         this.resultData = null;
         this.resultFilename = null;
@@ -63,7 +79,7 @@ const CompressModule = {
     },
 
     async compressPDF() {
-        if (!this.currentFile) {
+        if (!this.pdfDoc) {
             Toast.warning('Please load a PDF first');
             return;
         }
@@ -72,31 +88,65 @@ const CompressModule = {
 
         try {
             document.getElementById('compress-btn').disabled = true;
-            Progress.show('compress-progress', 'Reading PDF...');
+            Progress.show('compress-progress', 'Starting compression...');
 
-            const arrayBuffer = await Utils.readFileAsArrayBuffer(this.currentFile);
+            const settings = this.getQualitySettings(quality);
+            const pageCount = this.pdfDoc.numPages;
 
-            Progress.update('compress-progress', 20, 'Analyzing PDF...');
-
-            // Load PDF with pdf-lib
+            // Create new PDF with pdf-lib
             const { PDFDocument } = PDFLib;
-            const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+            const compressedDoc = await PDFDocument.create();
 
-            Progress.update('compress-progress', 40, 'Compressing...');
+            for (let i = 1; i <= pageCount; i++) {
+                Progress.update('compress-progress',
+                    Math.round((i / pageCount) * 90),
+                    `Compressing page ${i}/${pageCount}...`
+                );
 
-            // Get quality settings
-            const qualitySettings = this.getQualitySettings(quality);
+                // Render page with PDF.js
+                const page = await this.pdfDoc.getPage(i);
+                const viewport = page.getViewport({ scale: settings.scale });
 
-            // Compress by re-rendering pages with adjusted image quality
-            const compressedPdf = await this.compressWithImageOptimization(pdfDoc, qualitySettings);
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const context = canvas.getContext('2d');
 
-            Progress.update('compress-progress', 80, 'Generating compressed PDF...');
+                // White background
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Save with compression options
-            const compressedBytes = await compressedPdf.save({
-                useObjectStreams: true,
-                addDefaultPage: false,
-            });
+                // Render page
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+
+                // Convert to JPEG with quality setting
+                const jpegDataUrl = canvas.toDataURL('image/jpeg', settings.imageQuality);
+                const jpegBytes = this.dataUrlToBytes(jpegDataUrl);
+
+                // Embed image in new PDF
+                const image = await compressedDoc.embedJpg(jpegBytes);
+
+                // Add page with original dimensions (scaled back up for display)
+                const originalViewport = page.getViewport({ scale: 1 });
+                const pdfPage = compressedDoc.addPage([originalViewport.width, originalViewport.height]);
+
+                // Draw image to fill page
+                pdfPage.drawImage(image, {
+                    x: 0,
+                    y: 0,
+                    width: originalViewport.width,
+                    height: originalViewport.height
+                });
+            }
+
+            Progress.update('compress-progress', 95, 'Generating compressed PDF...');
+
+            // Save compressed PDF
+            const compressedBytes = await compressedDoc.save();
 
             Progress.update('compress-progress', 100, 'Complete!');
 
@@ -108,11 +158,11 @@ const CompressModule = {
             this.resultFilename = `${baseName}_compressed.pdf`;
             this.resultData = compressedBytes;
 
-            // Show results with download button
+            // Show results
             this.showResults(compressedSize, savings);
 
             if (compressedSize >= this.originalSize) {
-                Toast.warning('PDF is already optimized. Compression may not reduce size further.');
+                Toast.warning('Compressed file is not smaller. Try a lower quality setting.');
             } else {
                 Toast.success(`Compressed! Saved ${savings}% - ready to download`);
             }
@@ -127,47 +177,45 @@ const CompressModule = {
     },
 
     getQualitySettings(quality) {
+        // Scale affects render resolution, imageQuality affects JPEG compression
         switch (quality) {
             case 'low':
-                return { scale: 0.5, imageQuality: 0.3 };
+                // Aggressive compression - lower resolution and quality
+                return { scale: 1.0, imageQuality: 0.4 };
             case 'medium':
-                return { scale: 0.75, imageQuality: 0.6 };
+                // Balanced compression
+                return { scale: 1.5, imageQuality: 0.6 };
             case 'high':
-                return { scale: 0.9, imageQuality: 0.85 };
+                // Light compression - maintain quality
+                return { scale: 2.0, imageQuality: 0.8 };
             default:
-                return { scale: 0.75, imageQuality: 0.6 };
+                return { scale: 1.5, imageQuality: 0.6 };
         }
     },
 
-    async compressWithImageOptimization(pdfDoc, settings) {
-        // Create a new document for the compressed version
-        const { PDFDocument } = PDFLib;
-        const compressedDoc = await PDFDocument.create();
-
-        const pages = pdfDoc.getPages();
-
-        for (let i = 0; i < pages.length; i++) {
-            Progress.update('compress-progress',
-                40 + Math.round((i / pages.length) * 40),
-                `Compressing page ${i + 1}/${pages.length}...`
-            );
-
-            // Copy page directly (basic compression)
-            const [copiedPage] = await compressedDoc.copyPages(pdfDoc, [i]);
-            compressedDoc.addPage(copiedPage);
+    dataUrlToBytes(dataUrl) {
+        const base64 = dataUrl.split(',')[1];
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
         }
-
-        return compressedDoc;
+        return bytes;
     },
 
     showResults(compressedSize, savings) {
         document.getElementById('original-size').textContent = Utils.formatSize(this.originalSize);
         document.getElementById('compressed-size').textContent = Utils.formatSize(compressedSize);
 
-        const savingsText = compressedSize < this.originalSize
-            ? `Reduced by ${savings}%`
-            : 'No size reduction achieved';
-        document.getElementById('savings').textContent = savingsText;
+        const savingsEl = document.getElementById('savings');
+        if (compressedSize < this.originalSize) {
+            savingsEl.textContent = `Reduced by ${savings}%`;
+            savingsEl.style.color = '#10b981';
+        } else {
+            const increase = ((compressedSize - this.originalSize) / this.originalSize * 100).toFixed(1);
+            savingsEl.textContent = `Size increased by ${increase}% - try lower quality`;
+            savingsEl.style.color = '#f59e0b';
+        }
 
         document.getElementById('compress-result').style.display = 'block';
         document.getElementById('compress-download-btn').onclick = () => this.downloadResult();
