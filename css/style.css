@@ -497,6 +497,42 @@ body {
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.pdf-info-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.btn-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.btn-preview:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.btn-preview svg {
+    width: 16px;
+    height: 16px;
 }
 
 .pdf-name {
@@ -1094,4 +1130,219 @@ body {
 .drag-handle svg {
     width: 16px;
     height: 16px;
+}
+
+/* Preview Button */
+.file-preview {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-preview:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.file-preview svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Offcanvas Panel */
+.offcanvas-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.offcanvas-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.offcanvas {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 500px;
+    background: var(--card-bg);
+    z-index: 1200;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.offcanvas.active {
+    transform: translateX(0);
+}
+
+.offcanvas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.offcanvas-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 1rem;
+}
+
+.offcanvas-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.offcanvas-close:hover {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.offcanvas-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.offcanvas-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Preview Controls */
+.preview-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color);
+}
+
+.preview-nav {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-nav:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.preview-nav:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.preview-nav svg {
+    width: 18px;
+    height: 18px;
+}
+
+.preview-page-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Preview Container */
+.preview-container {
+    flex: 1;
+    overflow: auto;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: var(--bg-color);
+}
+
+.preview-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.preview-loading.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 1rem;
+}
+
+#preview-canvas {
+    max-width: 100%;
+    height: auto;
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-sm);
+    background: white;
+}
+
+#preview-canvas.hidden {
+    display: none;
+}
+
+/* Responsive Offcanvas */
+@media (max-width: 768px) {
+    .offcanvas {
+        max-width: 100%;
+    }
 }

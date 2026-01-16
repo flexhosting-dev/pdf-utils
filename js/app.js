@@ -364,10 +364,174 @@ function initConvertTabs() {
     });
 }
 
+// PDF Preview Panel
+const PdfPreview = {
+    panel: null,
+    backdrop: null,
+    canvas: null,
+    loadingEl: null,
+    currentPdf: null,
+    currentPage: 1,
+    totalPages: 0,
+    currentFile: null,
+
+    init() {
+        this.panel = document.getElementById('pdf-preview-panel');
+        this.backdrop = document.getElementById('preview-backdrop');
+        this.canvas = document.getElementById('preview-canvas');
+        this.loadingEl = document.getElementById('preview-loading');
+
+        // Close button
+        document.getElementById('preview-close')?.addEventListener('click', () => {
+            this.close();
+        });
+
+        // Backdrop click to close
+        this.backdrop?.addEventListener('click', () => {
+            this.close();
+        });
+
+        // Navigation buttons
+        document.getElementById('preview-prev')?.addEventListener('click', () => {
+            this.prevPage();
+        });
+
+        document.getElementById('preview-next')?.addEventListener('click', () => {
+            this.nextPage();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!this.panel?.classList.contains('active')) return;
+
+            if (e.key === 'Escape') {
+                this.close();
+            } else if (e.key === 'ArrowLeft') {
+                this.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                this.nextPage();
+            }
+        });
+    },
+
+    async open(file) {
+        if (!file) return;
+
+        this.currentFile = file;
+        this.currentPage = 1;
+
+        // Show panel
+        this.panel.classList.add('active');
+        this.backdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Set title
+        document.getElementById('preview-title').textContent = file.name;
+
+        // Show loading
+        this.showLoading();
+
+        try {
+            const arrayBuffer = await Utils.readFileAsArrayBuffer(file);
+            this.currentPdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            this.totalPages = this.currentPdf.numPages;
+
+            document.getElementById('preview-total-pages').textContent = this.totalPages;
+
+            await this.renderPage(1);
+            this.updateNavButtons();
+
+        } catch (error) {
+            console.error('Error loading PDF preview:', error);
+            Toast.error('Failed to load PDF preview');
+            this.close();
+        }
+    },
+
+    async renderPage(pageNum) {
+        if (!this.currentPdf || pageNum < 1 || pageNum > this.totalPages) return;
+
+        this.showLoading();
+        this.currentPage = pageNum;
+
+        try {
+            const page = await this.currentPdf.getPage(pageNum);
+
+            // Calculate scale to fit the container width
+            const containerWidth = this.panel.offsetWidth - 48; // padding
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = Math.min(containerWidth / viewport.width, 2);
+            const scaledViewport = page.getViewport({ scale });
+
+            this.canvas.width = scaledViewport.width;
+            this.canvas.height = scaledViewport.height;
+
+            const context = this.canvas.getContext('2d');
+            await page.render({
+                canvasContext: context,
+                viewport: scaledViewport
+            }).promise;
+
+            document.getElementById('preview-current-page').textContent = pageNum;
+            this.hideLoading();
+
+        } catch (error) {
+            console.error('Error rendering page:', error);
+            Toast.error('Failed to render page');
+            this.hideLoading();
+        }
+    },
+
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.renderPage(this.currentPage - 1);
+            this.updateNavButtons();
+        }
+    },
+
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.renderPage(this.currentPage + 1);
+            this.updateNavButtons();
+        }
+    },
+
+    updateNavButtons() {
+        const prevBtn = document.getElementById('preview-prev');
+        const nextBtn = document.getElementById('preview-next');
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
+    },
+
+    showLoading() {
+        this.loadingEl?.classList.remove('hidden');
+        this.canvas?.classList.add('hidden');
+    },
+
+    hideLoading() {
+        this.loadingEl?.classList.add('hidden');
+        this.canvas?.classList.remove('hidden');
+    },
+
+    close() {
+        this.panel?.classList.remove('active');
+        this.backdrop?.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // Clean up
+        this.currentPdf = null;
+        this.currentFile = null;
+        this.currentPage = 1;
+        this.totalPages = 0;
+    }
+};
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initConvertTabs();
+    PdfPreview.init();
 
     // Initialize each module
     if (typeof MergeModule !== 'undefined') MergeModule.init();

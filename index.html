@@ -235,8 +235,17 @@
 
             <div class="split-options" id="split-options" style="display: none;">
                 <div class="pdf-info">
-                    <span class="pdf-name" id="split-pdf-name"></span>
-                    <span class="pdf-pages" id="split-pdf-pages"></span>
+                    <div class="pdf-info-left">
+                        <span class="pdf-name" id="split-pdf-name"></span>
+                        <span class="pdf-pages" id="split-pdf-pages"></span>
+                    </div>
+                    <button class="btn-preview" id="split-preview-btn" title="Preview PDF">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Preview
+                    </button>
                 </div>
 
                 <div class="split-mode">
@@ -318,8 +327,17 @@
 
             <div class="compress-options" id="compress-options" style="display: none;">
                 <div class="pdf-info">
-                    <span class="pdf-name" id="compress-pdf-name"></span>
-                    <span class="pdf-size" id="compress-pdf-size"></span>
+                    <div class="pdf-info-left">
+                        <span class="pdf-name" id="compress-pdf-name"></span>
+                        <span class="pdf-size" id="compress-pdf-size"></span>
+                    </div>
+                    <button class="btn-preview" id="compress-preview-btn" title="Preview PDF">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Preview
+                    </button>
                 </div>
 
                 <div class="quality-selector">
@@ -469,8 +487,17 @@
 
                 <div class="pdf-to-img-options" id="pdf-to-img-options" style="display: none;">
                     <div class="pdf-info">
-                        <span class="pdf-name" id="pdf-img-name"></span>
-                        <span class="pdf-pages" id="pdf-img-pages"></span>
+                        <div class="pdf-info-left">
+                            <span class="pdf-name" id="pdf-img-name"></span>
+                            <span class="pdf-pages" id="pdf-img-pages"></span>
+                        </div>
+                        <button class="btn-preview" id="pdf-img-preview-btn" title="Preview PDF">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Preview
+                        </button>
                     </div>
 
                     <div class="format-selector">
@@ -534,6 +561,44 @@
     <footer class="footer">
         <p>PDF Utils - All processing happens in your browser. Your files never leave your device.</p>
     </footer>
+
+    <!-- PDF Preview Offcanvas -->
+    <div class="offcanvas-backdrop" id="preview-backdrop"></div>
+    <div class="offcanvas" id="pdf-preview-panel">
+        <div class="offcanvas-header">
+            <h3 class="offcanvas-title" id="preview-title">PDF Preview</h3>
+            <button class="offcanvas-close" id="preview-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="preview-controls">
+                <button class="preview-nav" id="preview-prev" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <span class="preview-page-info">
+                    Page <span id="preview-current-page">1</span> of <span id="preview-total-pages">1</span>
+                </span>
+                <button class="preview-nav" id="preview-next" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div class="preview-container" id="preview-container">
+                <div class="preview-loading" id="preview-loading">
+                    <div class="spinner"></div>
+                    <p>Loading preview...</p>
+                </div>
+                <canvas id="preview-canvas"></canvas>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notifications -->
     <div class="toast-container" id="toast-container"></div>

@@ -99,13 +99,24 @@ const MergeModule = {
                     <div class="file-name">${fileData.name}</div>
                     <div class="file-size">${Utils.formatSize(fileData.size)}</div>
                 </div>
-                <button class="file-remove" data-id="${fileData.id}">
+                <button class="file-preview" data-id="${fileData.id}" title="Preview PDF">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+                <button class="file-remove" data-id="${fileData.id}" title="Remove">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
             `;
+
+            item.querySelector('.file-preview').addEventListener('click', (e) => {
+                e.stopPropagation();
+                PdfPreview.open(fileData.file);
+            });
 
             item.querySelector('.file-remove').addEventListener('click', (e) => {
                 e.stopPropagation();

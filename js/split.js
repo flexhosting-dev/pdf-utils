@@ -35,6 +35,13 @@ const SplitModule = {
         document.getElementById('page-input')?.addEventListener('input', (e) => {
             this.updateSelectionFromInput(e.target.value);
         });
+
+        // Preview button
+        document.getElementById('split-preview-btn')?.addEventListener('click', () => {
+            if (this.currentFile) {
+                PdfPreview.open(this.currentFile);
+            }
+        });
     },
 
     async loadPDF(file) {

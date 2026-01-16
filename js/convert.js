@@ -268,6 +268,13 @@ const ConvertModule = {
         scaleInput?.addEventListener('input', () => {
             scaleValue.textContent = scaleInput.value + 'x';
         });
+
+        // Preview button
+        document.getElementById('pdf-img-preview-btn')?.addEventListener('click', () => {
+            if (this.currentPdf) {
+                PdfPreview.open(this.currentPdf);
+            }
+        });
     },
 
     async loadPdfForImages(file) {

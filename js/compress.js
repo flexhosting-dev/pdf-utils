@@ -21,6 +21,13 @@ const CompressModule = {
         document.getElementById('compress-btn')?.addEventListener('click', () => {
             this.compressPDF();
         });
+
+        // Preview button
+        document.getElementById('compress-preview-btn')?.addEventListener('click', () => {
+            if (this.currentFile) {
+                PdfPreview.open(this.currentFile);
+            }
+        });
     },
 
     loadPDF(file) {
