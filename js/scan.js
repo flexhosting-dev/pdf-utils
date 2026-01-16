@@ -6,6 +6,8 @@ const ScanModule = {
     pageCount: 0,
     resultData: null,
     resultFilename: null,
+    previewPage: null,
+    previewTimeout: null,
 
     init() {
         // Setup drop zone
@@ -23,19 +25,12 @@ const ScanModule = {
             this.applyScanEffect();
         });
 
-        // Preview button
-        document.getElementById('scan-preview-btn')?.addEventListener('click', () => {
-            if (this.currentFile) {
-                PdfPreview.open(this.currentFile);
-            }
-        });
-
         // Download button
         document.getElementById('scan-download-btn')?.addEventListener('click', () => {
             this.downloadResult();
         });
 
-        // Setup sliders
+        // Setup sliders with live preview
         this.setupSliders();
     },
 
@@ -44,8 +39,7 @@ const ScanModule = {
             { id: 'noise-level', valueId: 'noise-value', suffix: '%' },
             { id: 'rotation-level', valueId: 'rotation-value', suffix: '°' },
             { id: 'brightness-level', valueId: 'brightness-value', prefix: true },
-            { id: 'contrast-level', valueId: 'contrast-value', prefix: true },
-            { id: 'border-level', valueId: 'border-value', suffix: '%' }
+            { id: 'contrast-level', valueId: 'contrast-value', prefix: true }
         ];
 
         sliders.forEach(({ id, valueId, suffix, prefix }) => {
@@ -60,9 +54,27 @@ const ScanModule = {
                     } else {
                         valueEl.textContent = val + (suffix || '');
                     }
+                    this.schedulePreviewUpdate();
                 });
             }
         });
+
+        // Color mode radio buttons
+        document.querySelectorAll('input[name="color-mode"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                this.schedulePreviewUpdate();
+            });
+        });
+    },
+
+    schedulePreviewUpdate() {
+        // Debounce preview updates
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
+        this.previewTimeout = setTimeout(() => {
+            this.generatePreview();
+        }, 150);
     },
 
     async loadPDF(file) {
@@ -88,12 +100,68 @@ const ScanModule = {
             document.getElementById('scan-result').style.display = 'none';
 
             Progress.hide('scan-progress');
-            Toast.success('PDF loaded successfully');
+
+            // Generate initial preview
+            await this.generatePreview();
+            Toast.success('PDF loaded - adjust settings and see live preview');
 
         } catch (error) {
             console.error('Error loading PDF:', error);
             Toast.error('Failed to load PDF: ' + error.message);
             Progress.hide('scan-progress');
+        }
+    },
+
+    async generatePreview() {
+        if (!this.pdfDoc) return;
+
+        const loadingEl = document.getElementById('scan-preview-loading');
+        const canvas = document.getElementById('scan-preview-canvas');
+
+        if (!canvas) return;
+
+        // Show loading
+        loadingEl?.classList.remove('hidden');
+
+        try {
+            const settings = this.getSettings();
+
+            // Render first page at lower scale for preview
+            const page = await this.pdfDoc.getPage(1);
+            const viewport = page.getViewport({ scale: 1.0 });
+
+            // Create canvas
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Render PDF page
+            await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise;
+
+            // Get image data for processing
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Apply effects (no rotation for preview to keep it stable)
+            this.applyColorMode(data, settings.colorMode);
+            this.applyBrightnessContrast(data, settings.brightness, settings.contrast);
+            this.applyNoise(data, settings.noise);
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Hide loading
+            loadingEl?.classList.add('hidden');
+
+        } catch (error) {
+            console.error('Preview error:', error);
+            loadingEl?.classList.add('hidden');
         }
     },
 
@@ -108,6 +176,13 @@ const ScanModule = {
         document.getElementById('scan-actions').style.display = 'none';
         document.getElementById('scan-drop-zone').style.display = 'block';
         document.getElementById('scan-result').style.display = 'none';
+
+        // Clear preview canvas
+        const canvas = document.getElementById('scan-preview-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     },
 
     getSettings() {
@@ -116,7 +191,6 @@ const ScanModule = {
             rotation: parseFloat(document.getElementById('rotation-level').value),
             brightness: parseInt(document.getElementById('brightness-level').value),
             contrast: parseInt(document.getElementById('contrast-level').value),
-            border: parseInt(document.getElementById('border-level').value) / 100,
             colorMode: document.querySelector('input[name="color-mode"]:checked').value
         };
     },
@@ -181,7 +255,6 @@ const ScanModule = {
                 this.applyColorMode(data, settings.colorMode);
                 this.applyBrightnessContrast(data, settings.brightness, settings.contrast);
                 this.applyNoise(data, settings.noise);
-                this.applyBorderShadow(data, canvas.width, canvas.height, settings.border);
 
                 ctx.putImageData(imageData, 0, 0);
 
@@ -278,34 +351,6 @@ const ScanModule = {
             data[i] = Math.max(0, Math.min(255, data[i] + noise));
             data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
             data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
-        }
-    },
-
-    applyBorderShadow(data, width, height, borderLevel) {
-        if (borderLevel === 0) return;
-
-        const maxDist = Math.min(width, height) * 0.15 * borderLevel;
-
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const i = (y * width + x) * 4;
-
-                // Calculate distance from edges
-                const distLeft = x;
-                const distRight = width - 1 - x;
-                const distTop = y;
-                const distBottom = height - 1 - y;
-                const minDist = Math.min(distLeft, distRight, distTop, distBottom);
-
-                if (minDist < maxDist) {
-                    const factor = minDist / maxDist;
-                    const darken = 1 - (1 - factor) * 0.5;
-
-                    data[i] = Math.round(data[i] * darken);
-                    data[i + 1] = Math.round(data[i + 1] * darken);
-                    data[i + 2] = Math.round(data[i + 2] * darken);
-                }
-            }
         }
     },
 

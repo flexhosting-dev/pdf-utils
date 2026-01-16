@@ -705,61 +705,63 @@
                         <span class="pdf-name" id="scan-pdf-name"></span>
                         <span class="pdf-pages" id="scan-pdf-pages"></span>
                     </div>
-                    <button class="btn-preview" id="scan-preview-btn" title="Preview PDF">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        Preview
-                    </button>
                 </div>
 
-                <div class="options-grid">
-                    <div class="option-group">
-                        <label>Noise Level</label>
-                        <input type="range" id="noise-level" min="0" max="100" value="15">
-                        <span class="option-value" id="noise-value">15%</span>
+                <div class="scan-workspace">
+                    <div class="scan-controls">
+                        <h4>Scan Effects</h4>
+
+                        <div class="option-group">
+                            <label>Noise Level</label>
+                            <input type="range" id="noise-level" min="0" max="100" value="15">
+                            <span class="option-value" id="noise-value">15%</span>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Max Rotation (Tilt)</label>
+                            <input type="range" id="rotation-level" min="0" max="5" value="1" step="0.5">
+                            <span class="option-value" id="rotation-value">1°</span>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Brightness</label>
+                            <input type="range" id="brightness-level" min="-30" max="30" value="5">
+                            <span class="option-value" id="brightness-value">+5</span>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Contrast</label>
+                            <input type="range" id="contrast-level" min="-30" max="30" value="10">
+                            <span class="option-value" id="contrast-value">+10</span>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Color Mode</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="color-mode" value="color" checked>
+                                    <span>Color</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="color-mode" value="grayscale">
+                                    <span>Grayscale</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="color-mode" value="bw">
+                                    <span>Black & White</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="option-group">
-                        <label>Max Rotation (Tilt)</label>
-                        <input type="range" id="rotation-level" min="0" max="5" value="1" step="0.5">
-                        <span class="option-value" id="rotation-value">1°</span>
-                    </div>
-
-                    <div class="option-group">
-                        <label>Brightness</label>
-                        <input type="range" id="brightness-level" min="-30" max="30" value="5">
-                        <span class="option-value" id="brightness-value">+5</span>
-                    </div>
-
-                    <div class="option-group">
-                        <label>Contrast</label>
-                        <input type="range" id="contrast-level" min="-30" max="30" value="10">
-                        <span class="option-value" id="contrast-value">+10</span>
-                    </div>
-
-                    <div class="option-group">
-                        <label>Border Shadow</label>
-                        <input type="range" id="border-level" min="0" max="50" value="20">
-                        <span class="option-value" id="border-value">20%</span>
-                    </div>
-
-                    <div class="option-group">
-                        <label>Color Mode</label>
-                        <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="color-mode" value="color" checked>
-                                <span>Color</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="color-mode" value="grayscale">
-                                <span>Grayscale</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="color-mode" value="bw">
-                                <span>Black & White</span>
-                            </label>
+                    <div class="scan-preview-pane">
+                        <h4>Live Preview</h4>
+                        <div class="scan-preview-container">
+                            <canvas id="scan-preview-canvas"></canvas>
+                            <div class="scan-preview-loading" id="scan-preview-loading">
+                                <div class="spinner"></div>
+                                <p>Generating preview...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
