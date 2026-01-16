@@ -84,10 +84,16 @@ const ConvertModule = {
         const items = imageList.querySelectorAll('.image-item');
         const newOrder = [];
 
-        items.forEach(item => {
+        items.forEach((item, index) => {
             const id = item.dataset.id;
             const img = this.images.find(i => i.id === id);
             if (img) newOrder.push(img);
+
+            // Update order number display
+            const orderEl = item.querySelector('.image-order');
+            if (orderEl) {
+                orderEl.textContent = index + 1;
+            }
         });
 
         this.images = newOrder;
@@ -97,14 +103,15 @@ const ConvertModule = {
         const imageList = document.getElementById('image-list');
         imageList.innerHTML = '';
 
-        this.images.forEach((imageData) => {
+        this.images.forEach((imageData, index) => {
             const item = document.createElement('div');
             item.className = 'image-item';
             item.dataset.id = imageData.id;
             item.draggable = true;
 
             item.innerHTML = `
-                <img src="${imageData.dataUrl}" alt="${imageData.name}">
+                <img src="${imageData.dataUrl}" alt="${imageData.name}" draggable="false">
+                <span class="image-order">${index + 1}</span>
                 <button class="remove-btn" data-id="${imageData.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
