@@ -222,6 +222,11 @@ body {
     color: #9333ea;
 }
 
+.reorganize-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
 .tool-card h3 {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
@@ -1130,6 +1135,127 @@ body {
 .drag-handle svg {
     width: 16px;
     height: 16px;
+}
+
+/* Reorganize Section */
+.reorganize-workspace {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.reorganize-hint {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.reorganize-pages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    min-height: 200px;
+}
+
+.reorganize-page {
+    position: relative;
+    aspect-ratio: 3/4;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+
+.reorganize-page:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.reorganize-page.dragging {
+    opacity: 0.5;
+    transform: scale(1.05);
+    cursor: grabbing;
+    z-index: 10;
+}
+
+.reorganize-page.drag-over {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.reorganize-page canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.reorganize-page-number {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.reorganize-page-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.reorganize-page-delete {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.reorganize-page:hover .reorganize-page-delete {
+    opacity: 1;
+}
+
+.reorganize-page-delete:hover {
+    background: #dc2626;
+}
+
+.reorganize-page-delete svg {
+    width: 14px;
+    height: 14px;
+}
+
+@media (max-width: 768px) {
+    .reorganize-pages {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
 }
 
 /* Preview Button */
